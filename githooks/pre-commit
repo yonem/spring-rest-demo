@@ -1,0 +1,32 @@
+#!/bin/sh
+
+echo "--- Running Lint, Build, and Tests before commit ---"
+
+MAVEN_HOME="/c/Apache/apache-maven-3.9.10"
+
+# MavenのbinディレクトリをPATHに追加
+export PATH="$MAVEN_HOME/bin:$PATH"
+
+# ステージングされているJavaファイルのリストを取得
+# --cached は --staged のエイリアス
+STAGED_JAVA_FILES=$(git diff --cached --name-only --diff-filter=ACM -- "*.java")
+
+if [ -z "$STAGED_JAVA_FILES" ]; then
+    echo "No Java files staged. Skipping Spotless check."
+    exit 0
+fi
+
+echo "Staged Java files to check: $STAGED_JAVA_FILES"
+
+# MavenのLint/Formatterチェック (例: Spotless Maven Plugin)
+# Spotlessはコードのフォーマットをチェックし、問題があればエラーを返す
+mvn spotless:check || { echo "Lint/Formatting check failed! Aborting commit."; exit 1; }
+
+# ビルドとテストの実行
+# -DskipTestsを付けないことでテストも実行される
+# -Dmaven.test.skip=true
+# clean installで依存関係のダウンロードとビルド、テストを行う
+mvn clean install -Dmaven.test.skip=true || { echo "Build and Tests failed! Aborting commit."; exit 1; }
+
+echo "--- Lint, Build, and Tests completed successfully. ---"
+exit 0
