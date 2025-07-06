@@ -27,4 +27,33 @@ class HelloControllerTest {
             .getResponse();
     assertEquals("Hello, user!", res.getContentAsString());
   }
+
+  @Test
+  @DisplayName("異常系: get:/api/hello?name=（パラメータなし）")
+  void test2() throws Exception {
+    var res =
+        mockMvc
+            .perform(get("/api/hello").contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andReturn()
+            .getResponse();
+    assertEquals("Hello, Guest!", res.getContentAsString());
+  }
+
+  @Test
+  @DisplayName("正常系: post:/api/message（JSONボディ）")
+  void test3() throws Exception {
+    var json = "{\"content\":\"テストメッセージ\"}";
+    var res =
+        mockMvc
+            .perform(
+                org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post(
+                        "/api/message")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(json))
+            .andExpect(status().isOk())
+            .andReturn()
+            .getResponse();
+    assertEquals("Received your message: 'テストメッセージ'. Server says hi!", res.getContentAsString());
+  }
 }
