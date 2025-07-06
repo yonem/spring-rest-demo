@@ -2,6 +2,18 @@
 
 echo "--- Running Lint, Build, and Tests before commit ---"
 
+BLACKLISTED_BRANCHES=("main" "develop")
+
+CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+
+for BRANCH in "${BLACKLISTED_BRANCHES[@]}"; do
+  if [ "$CURRENT_BRANCH" = "$BRANCH" ]; then
+    echo "ERROR: Direct commits to the '$BRANCH' branch are not allowed."
+    echo "Please create a new branch for your changes and merge them later."
+    exit 1
+  fi
+done
+
 MAVEN_HOME="/c/Apache/apache-maven-3.9.10"
 
 # MavenのbinディレクトリをPATHに追加

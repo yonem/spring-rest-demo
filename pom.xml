@@ -10,7 +10,7 @@
     </parent>
     <groupId>jp.ne.yonem</groupId>
     <artifactId>restful</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.0.1</version>
     <name>restful</name>
     <description>restful for Spring Boot</description>
     <url/>
