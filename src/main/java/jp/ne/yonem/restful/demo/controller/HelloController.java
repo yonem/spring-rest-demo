@@ -1,6 +1,6 @@
 package jp.ne.yonem.restful.demo.controller;
 
-import jp.ne.yonem.restful.demo.dto.MessageRequest;
+import jp.ne.yonem.restful.demo.form.MessageRequest;
 import org.springframework.web.bind.annotation.*;
 
 // このアノテーションでRESTfulなコントローラーであることを示す
