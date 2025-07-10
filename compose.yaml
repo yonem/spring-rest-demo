@@ -1,5 +1,24 @@
 version: '3.8'
 services:
+  mailpit:
+    image: axllent/mailpit:latest
+    # http://localhost:8025
+    ports:
+      - "8025:8025" # Web UI
+      - "1025:1025" # SMTP
+    volumes:
+      - ./mailpit:/data
+    environment:
+      TZ: Asia/Tokyo
+      MP_MAX_MESSAGES: 5000
+      MP_DATABASE: /data/mailpit.db
+      MP_SMTP_AUTH_ACCEPT_ANY: 1
+      MP_SMTP_AUTH_ALLOW_INSECURE: 1
+    deploy:
+      resources:
+        limits:
+          cpus: '0.025'
+          memory: 128M
   db:
     image: postgres:17.5
     restart: always
@@ -11,6 +30,5 @@ services:
       - "5432:5432"
     volumes:
       - db_data:/var/lib/postgresql/data
-
 volumes:
   db_data:
