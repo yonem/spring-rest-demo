@@ -5,6 +5,9 @@ import jp.ne.yonem.restful.demo.entity.Team;
 import jp.ne.yonem.restful.demo.service.GetTeamMemberService;
 import jp.ne.yonem.restful.demo.service.GetTeamService;
 import lombok.RequiredArgsConstructor;
+import org.apache.ibatis.javassist.NotFoundException;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -20,8 +23,13 @@ public class TeamMemberController {
     return teamMemberService.execute();
   }
 
-  @PostMapping("/team")
-  public Team getTeam(@RequestParam(value = "id") Integer id) {
-    return teamService.execute(id);
+  @GetMapping("/team")
+  public ResponseEntity<Team> getTeam(@RequestParam(value = "id") Integer id) {
+
+    try {
+      return new ResponseEntity<>(teamService.execute(id), HttpStatus.OK);
+    } catch (NotFoundException e) {
+      return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+    }
   }
 }
