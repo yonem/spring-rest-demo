@@ -21,11 +21,11 @@ public class EmailService {
   private final ResourceLoader resourceLoader;
 
   @Value("${system.mail.from}")
-  private final String MAIL_FROM;
+  private String mailFrom;
 
   public void execute(EmailForm form, String content, Object[] placeHolders) {
     var message = new SimpleMailMessage();
-    message.setFrom(MAIL_FROM);
+    message.setFrom(mailFrom);
     message.setTo(form.getTo());
     message.setSubject(form.getSubject());
     var loader = resourceLoader.getResource("classpath:mail/%s.txt".formatted(content));

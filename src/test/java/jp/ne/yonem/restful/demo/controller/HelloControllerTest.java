@@ -3,6 +3,7 @@ package jp.ne.yonem.restful.demo.controller;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import org.junit.jupiter.api.DisplayName;
@@ -52,8 +53,7 @@ class HelloControllerTest {
     var res =
         mockMvc
             .perform(
-                org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post(
-                        "/api/message")
+                post("/api/message")
                     .with(csrf())
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(json))
