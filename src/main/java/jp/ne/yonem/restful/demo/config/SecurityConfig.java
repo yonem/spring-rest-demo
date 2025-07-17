@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
 import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import jp.ne.yonem.restful.auth.LoginUserDetailsService;
 import jp.ne.yonem.restful.idp.JwtAuthenticationFilter;
+import jp.ne.yonem.restful.idp.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -36,7 +37,7 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 @RequiredArgsConstructor
 public class SecurityConfig {
   private final LoginUserDetailsService userDetailsService;
-  private final JwtAuthenticationFilter jwtAuthenticationFilter;
+  private final JwtTokenProvider jwtTokenProvider;
 
   private static final String[] SWAGGER_WHITELIST = {
     "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html", "/webjars/**"
@@ -61,6 +62,11 @@ public class SecurityConfig {
   }
 
   @Bean
+  public JwtAuthenticationFilter jwtAuthenticationFilterBean() {
+    return new JwtAuthenticationFilter(jwtTokenProvider, userDetailsService);
+  }
+
+  @Bean
   @Order(1)
   public SecurityFilterChain apiFilterChain(HttpSecurity http) throws Exception {
     http.securityMatcher("/api/**")
@@ -69,7 +75,7 @@ public class SecurityConfig {
             session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .authorizeHttpRequests(
             auth -> auth.requestMatchers("/api/auth/**").permitAll().anyRequest().authenticated())
-        .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+        .addFilterBefore(jwtAuthenticationFilterBean(), UsernamePasswordAuthenticationFilter.class);
     return http.build();
   }
 
