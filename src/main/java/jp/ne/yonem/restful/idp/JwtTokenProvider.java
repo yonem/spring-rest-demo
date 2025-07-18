@@ -1,14 +1,20 @@
 package jp.ne.yonem.restful.idp;
 
 import io.jsonwebtoken.*;
-import io.jsonwebtoken.security.Keys;
+import java.security.KeyFactory;
+import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.PKCS8EncodedKeySpec;
+import java.security.spec.X509EncodedKeySpec;
+import java.util.Base64;
 import java.util.Date;
 import java.util.stream.Collectors;
-import javax.crypto.SecretKey;
+import jp.ne.yonem.restful.auth.LoginUserDetail;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -17,14 +23,18 @@ public class JwtTokenProvider {
   @Value("${jwt.expiration}")
   private long jwtExpirationInMs;
 
-  private final SecretKey key;
+  private final PrivateKey privateKey;
+  private final PublicKey publicKey;
 
-  public JwtTokenProvider(@Value("${jwt.secret}") String jwtSecret) {
-    this.key = Keys.hmacShaKeyFor(jwtSecret.getBytes());
+  public JwtTokenProvider(
+      @Value("${jwt.privateKey}") String privateKey, @Value("${jwt.publicKey}") String publicKey)
+      throws NoSuchAlgorithmException, InvalidKeySpecException {
+    this.privateKey = decodePrivateKeyFromPEM(privateKey);
+    this.publicKey = decodePublicKeyFromPEM(publicKey);
   }
 
   public String generateToken(Authentication authentication) {
-    var userDetails = (UserDetails) authentication.getPrincipal();
+    var userDetails = (LoginUserDetail) authentication.getPrincipal();
     var now = new Date();
     var expiryDate = new Date(now.getTime() + jwtExpirationInMs);
     var roles =
@@ -33,22 +43,22 @@ public class JwtTokenProvider {
             .collect(Collectors.joining(","));
 
     return Jwts.builder()
-        .subject(userDetails.getUsername())
+        .subject(userDetails.getEmail())
         .claim("roles", roles)
         .issuedAt(now)
         .expiration(expiryDate)
-        .signWith(key)
+        .signWith(privateKey)
         .compact();
   }
 
   public String getLoginIdFromJWT(String token) {
-    var claims = Jwts.parser().verifyWith(key).build().parseSignedClaims(token).getPayload();
+    var claims = Jwts.parser().verifyWith(publicKey).build().parseSignedClaims(token).getPayload();
     return claims.getSubject();
   }
 
   public boolean validateToken(String authToken) {
     try {
-      Jwts.parser().verifyWith(key).build().parseSignedClaims(authToken);
+      Jwts.parser().verifyWith(publicKey).build().parseSignedClaims(authToken);
       return true;
     } catch (MalformedJwtException ex) {
       // "Invalid JWT token"
@@ -60,5 +70,21 @@ public class JwtTokenProvider {
       // "JWT claims string is empty."
     }
     return false;
+  }
+
+  public static PublicKey decodePublicKeyFromPEM(String pemString)
+      throws NoSuchAlgorithmException, InvalidKeySpecException {
+    byte[] decodedBytes = Base64.getDecoder().decode(pemString);
+    X509EncodedKeySpec keySpec = new X509EncodedKeySpec(decodedBytes);
+    KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+    return keyFactory.generatePublic(keySpec);
+  }
+
+  public static PrivateKey decodePrivateKeyFromPEM(String pemString)
+      throws NoSuchAlgorithmException, InvalidKeySpecException {
+    var decodedBytes = Base64.getDecoder().decode(pemString);
+    var keySpec = new PKCS8EncodedKeySpec(decodedBytes);
+    var keyFactory = KeyFactory.getInstance("RSA");
+    return keyFactory.generatePrivate(keySpec);
   }
 }

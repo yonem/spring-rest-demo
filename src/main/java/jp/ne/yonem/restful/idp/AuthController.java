@@ -1,6 +1,7 @@
 package jp.ne.yonem.restful.idp;
 
 import java.util.Objects;
+import jp.ne.yonem.restful.auth.LoginUserDetail;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -20,9 +21,9 @@ public class AuthController {
   private final JwtTokenProvider tokenProvider;
 
   @PostMapping("/userprofile")
-  public ResponseEntity<?> userprofile(@AuthenticationPrincipal LoginRequest loginUser) {
+  public ResponseEntity<?> userprofile(@AuthenticationPrincipal LoginUserDetail loginUser) {
 
-    if (!Objects.isNull(loginUser)) {
+    if (Objects.nonNull(loginUser)) {
       return ResponseEntity.ok(loginUser);
     } else {
       return ResponseEntity.badRequest().build();
