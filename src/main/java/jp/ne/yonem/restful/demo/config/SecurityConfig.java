@@ -1,8 +1,5 @@
 package jp.ne.yonem.restful.demo.config;
 
-import io.swagger.v3.oas.annotations.enums.SecuritySchemeIn;
-import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
-import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import jp.ne.yonem.restful.auth.LoginUserDetailsService;
 import jp.ne.yonem.restful.idp.JwtAuthenticationFilter;
 import jp.ne.yonem.restful.idp.JwtTokenProvider;
@@ -25,15 +22,8 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
-@SecurityScheme(
-    name = "Bearer Authentication", // Swagger UIで表示される認証スキームの名前
-    type = SecuritySchemeType.HTTP,
-    bearerFormat = "JWT",
-    scheme = "bearer",
-    in = SecuritySchemeIn.HEADER // ヘッダーとして渡すことを指定
-    )
 @Configuration
-@EnableMethodSecurity(prePostEnabled = true)
+@EnableMethodSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
   private final LoginUserDetailsService userDetailsService;

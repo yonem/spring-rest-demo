@@ -1,11 +1,10 @@
 package jp.ne.yonem.restful.demo.controller;
 
-import static org.hamcrest.Matchers.*;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
 import jp.ne.yonem.restful.demo.entity.Member;
 import jp.ne.yonem.restful.demo.entity.Team;
@@ -25,6 +24,7 @@ import org.springframework.test.web.servlet.MockMvc;
 @WebMvcTest(TeamMemberController.class)
 class TeamMemberControllerTest {
   @Autowired private MockMvc mockMvc;
+  @Autowired private ObjectMapper objectMapper;
   @MockitoBean private GetTeamService getTeamService;
   @MockitoBean private GetTeamMemberService getTeamMemberService;
 
@@ -43,13 +43,7 @@ class TeamMemberControllerTest {
 
     mockMvc
         .perform(get("/api/team?id=1").contentType(MediaType.APPLICATION_JSON))
-        .andExpectAll(
-            status().isOk(),
-            jsonPath("$.id").value(team.getId()),
-            jsonPath("$.name").value(team.getName()),
-            jsonPath("$.members.length()", is(2)),
-            jsonPath("$.members[0].id").value(team.getMembers().getFirst().getId()),
-            jsonPath("$.members[1].id").value(team.getMembers().getLast().getId()));
+        .andExpectAll(status().isOk(), content().json(objectMapper.writeValueAsString(team)));
   }
 
   @Test
