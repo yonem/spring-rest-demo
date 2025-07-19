@@ -78,3 +78,140 @@ Docker Composeを使用してPostgreSQLデータベースコンテナを起動
 
 参考URL:
 [Docker Compose CLI overview](https://docs.docker.com/compose/reference/)
+
+-----
+
+## 自己署名証明書でのSSL設定
+
+SSL認証でHTTPS通信を有効にする
+
+### 自己署名証明書（キーストアファイル）の作成
+
+自己署名証明書を含むキーストアファイル（ここではPKCS#12形式の`.p12`ファイル）を作成する  
+※ Java Development Kit (JDK) がインストールされていること（keytoolコマンドを使用する）
+
+- キーストアファイルの生成
+
+   ```bash
+   keytool -genkeypair -alias your_key_alias -keyalg RSA -keysize 2048 -storetype PKCS12 -keystore keystore.p12 -validity 365 -dname "CN=your_domain_name, OU=YourOrgUnit, O=YourOrg, L=YourCity, ST=YourState, C=YourCountry" -storepass your_keystore_password -keypass your_keystore_password
+   ```
+
+    - コマンドの説明:
+        - `genkeypair`: 鍵ペア（秘密鍵と公開鍵）を生成する
+        - `alias your_key_alias`: 生成する鍵ペアに付ける名前（エイリアス）
+        - `keyalg RSA`: 鍵のアルゴリズムにRSAを使用する
+        - `keysize 2048`: 鍵の長さを2048ビットにします（標準的な長さ）
+        - `storetype PKCS12`: キーストアの形式をPKCS#12にするSpring Bootで推奨される形式
+        - `keystore keystore.p12`: 生成されるキーストアファイルの名前このファイルが重要
+        - `validity 365`: 証明書の有効期間を365日（1年間）にする
+        - `dname "..."`: 証明書に含める情報  
+          `CN=your_domain_name`: Common Name（コモンネーム）ここにアクセスするドメイン名（例: localhost）を指定する  
+          `OU=YourOrgUnit, O=YourOrg, L=YourCity, ST=YourState, C=YourCountry`: 組織名、場所などの情報適当な値でOK
+        - `storepass your_keystore_password`: キーストア全体のパスワード
+        - `keypass your_keystore_password`: 鍵のパスワードです。通常はキーストアのパスワードと同じにする
+
+このコマンドを実行すると、`keystore.p12`というファイルが、コマンドを実行したディレクトリに作成されるので
+`src/main/resources/`に配置する
+
+### Spring Bootの`application.properties`を設定
+
+`src/main/resources/application.properties`ファイルを開き、以下の設定を追加する
+
+   ```properties
+# HTTPSでアクセスを受け付けるポート番号を443に設定（任意、デフォルトは8443）
+server.port=8443
+# SSL（HTTPS）を有効にする
+server.ssl.enabled=true
+# キーストアのタイプをPKCS12に指定
+server.ssl.key-store-type=PKCS12
+# キーストアファイルがどこにあるかを指定
+# `classpath:` は `src/main/resources/` の中を意味する
+server.ssl.key-store=classpath:keystore.p12
+# キーストアを開くためのパスワード（ステップ1で設定したパスワード）
+server.ssl.key-store-password=your_keystore_password
+# キーストアの中の鍵（証明書）のエイリアス（ステップ1で設定したエイリアス）
+server.ssl.key-alias=your_key_alias
+# 鍵自体のパスワード（ステップ1で設定したパスワード）
+server.ssl.key-password=your_keystore_password
+   ```
+
+- `server.port`: HTTPSのポート番号。通常は`443`だが、ローカルでのテストでは`8443`を使うことが多い
+- `your_keystore_password`と`your_key_alias`は、自己署名証明書で設定した値に合わせる
+
+### 設定確認
+
+Springアプリケーションを起動し`https://localhost:8443/` にアクセスする (`server.port`を`8443`に設定した場合)
+
+-----
+
+## CAからSSL証明書を取得 (参考)
+
+`.p12`ファイルは、秘密鍵と証明書がセットになったJavaで扱いやすい形式となる。CAに認証してもらうプロセスは、通常、以下の流れ
+
+- 秘密鍵（Private Key）の準備
+
+  ```properties
+   # .p12ファイルから秘密鍵を抽出するコマンド例 (OpenSSLが必要)
+   openssl pkcs12 -in your_keystore.p12 -nodes -nocerts -out private.key
+   # -nodes: 秘密鍵をパスワードなしで出力 (注意: 安全な場所に保管！)
+   # -nocerts: 証明書は出力しない
+   # -out private.key: 出力ファイル名
+   ```
+
+- CSR（Certificate Signing Request）の生成
+
+   ```properties
+   # CSRを生成するコマンド例 (OpenSSLが必要)
+   openssl req -new -key private.key -out your_domain.csr -sha256 -dname "CN=your_domain.com, O=Your Organization, L=Your City, ST=Your State, C=JP"
+   ```
+
+    - コマンドの説明:
+        - `key private.key`: ステップ1で抽出した秘密鍵を指定
+        - `out your_domain.csr`: 生成されるCSRファイルの名前
+        - `sha256`: 署名アルゴリズムを指定
+        - `dname "..."`: 証明書に含める情報を指定。`CN (Common Name)` は、ウェブサイトの正確なドメイン名 (例:
+          `www.example.com` や `api.example.com`) を必ず入力する
+
+- CA（認証局）への申請と審査  
+  生成した`your_domain.csr`ファイルを、選択したCA（例: `Let's Encrypt`、`GMOグローバルサイン`、`Symantec`、`DigiCert`
+  など）のウェブサイトから申請する
+    - CAの選択
+        - 無料かつ自動化がしやすい: `Let's Encrypt`（テスト環境や個人ブログなどに最適）
+        - 法人向けで信頼性が高い（有料）: `GMOグローバルサイン`、`Symantec`、`DigiCert`など
+- 申請プロセス
+    - CAのウェブサイトで、希望する証明書の種類（ドメイン認証、組織認証、EV認証など）を選択し、申し込みを開始する
+    - 生成した`your_domain.csr`ファイルの内容を、CAのフォームに貼り付ける
+    - CAは、ドメインの所有者であることを確認するために、いくつかの審査方法を提示する
+        - （例: ドメインのDNSレコードに特定の情報を追加する、特定のファイルをウェブサイトのルートディレクトリに配置する、登録メールアドレスに確認メールを送るなど）
+    - 審査に合格すると、CAから **「正式なデジタル証明書」ファイル**
+      が発行される。通常、これはサーバー証明書と中間証明書（バンドル証明書）がセットになった`.pem`形式や`.crt`
+      形式のファイルとして提供される
+
+- 発行された証明書を`.p12`形式に変換し、Spring Bootに設定  
+  CAから発行された証明書は、通常`.pem`や`.crt`形式となる。これをSpring Bootで扱いやすい`.p12`形式に変換し直す
+- CAから受け取った証明書と、元の秘密鍵を使って`.p12`を作成する  
+  CAから提供された`your_domain.crt` (サーバー証明書) と `ca_bundle.crt` (
+  中間証明書。通常CAから提供されるか、CAのサイトでダウンロード可能) を準備する
+   ```properties
+   # 証明書チェーンを作成（サーバー証明書と中間証明書を結合）
+   cat your_domain.crt ca_bundle.crt > fullchain.pem
+   # fullchain.pem と private.key を使って .p12 ファイルを生成
+   openssl pkcs12 -export -in fullchain.pem -inkey private.key -out trusted_keystore.p12 -name your_alias -password pass:
+   your_keystore_password
+   ```
+    - コマンドの説明:
+        - `in fullchain.pem`: サーバー証明書と中間証明書を結合したファイル
+        - `inkey private.key`: あなたの秘密鍵ファイル
+        - `out trusted_keystore.p12`: 生成される新しいPKCS#12ファイル名
+        - `name your_alias`: キーストア内のエイリアス
+        - `password pass:your_keystore_password`: 新しいキーストアのパスワード
+- `application.properties`の設定を更新  
+  新しい`trusted_keystore.p12`ファイルを`src/main/resources/`に配置し、`application.properties`のパスとパスワードを更新する
+
+   ```properties
+   server.ssl.key-store=classpath:trusted_keystore.p12 # ファイル名を更新
+   server.ssl.key-store-password=your_keystore_password # パスワードを更新
+   server.ssl.key-alias=your_alias # エイリアスを更新
+   server.ssl.key-password=your_keystore_password # パスワードを更新
+   ```
+  
