@@ -44,4 +44,7 @@
                 ON t.id = m.team_id
         WHERE t.id = #{id}
     </select>
+    <insert id="insert" parameterType="jp.ne.yonem.restful.demo.entity.Team" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO team (name) VALUES (#{name})
+    </insert>
 </mapper>

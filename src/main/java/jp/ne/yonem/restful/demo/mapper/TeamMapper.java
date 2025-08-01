@@ -10,4 +10,6 @@ public interface TeamMapper {
   List<Team> findAllTeamsWithMembers();
 
   Team findById(@Param("id") Integer id);
+
+  int insert(Team team);
 }
