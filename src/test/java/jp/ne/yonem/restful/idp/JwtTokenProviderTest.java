@@ -2,6 +2,7 @@ package jp.ne.yonem.restful.idp;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import io.jsonwebtoken.Jwts;
 import java.security.*;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
@@ -43,15 +44,36 @@ class JwtTokenProviderTest {
         "Loaded Private Key DOES NOT match original!");
   }
 
-  public static String encodePublicKeyToPEM(PublicKey publicKey) {
+  @Test
+  @DisplayName("キーペア検証")
+  void test02() throws NoSuchAlgorithmException, InvalidKeySpecException {
+    var keyPairGenerator = KeyPairGenerator.getInstance("RSA");
+    keyPairGenerator.initialize(2048);
+    var keyPair = keyPairGenerator.genKeyPair();
+
+    var publicKey = keyPair.getPublic();
+    var privateKey = keyPair.getPrivate();
+
+    var publicPem = encodePublicKeyToPEM(publicKey);
+    var privatePem = encodePrivateKeyToPEM(privateKey);
+    var subject = "subject";
+    var jwtTokenProvider = new JwtTokenProvider(privatePem, publicPem);
+    var jwt = Jwts.builder().subject(subject).signWith(privateKey).compact();
+    var claims = jwtTokenProvider.getLoginIdFromJWT(jwt);
+
+    assertEquals(subject, claims);
+    assertTrue(jwtTokenProvider.validateToken(jwt));
+  }
+
+  private static String encodePublicKeyToPEM(PublicKey publicKey) {
     return Base64.getEncoder().encodeToString(publicKey.getEncoded());
   }
 
-  public static String encodePrivateKeyToPEM(PrivateKey privateKey) {
+  private static String encodePrivateKeyToPEM(PrivateKey privateKey) {
     return Base64.getEncoder().encodeToString(privateKey.getEncoded());
   }
 
-  public static PublicKey decodePublicKeyFromPEM(String pemString)
+  private static PublicKey decodePublicKeyFromPEM(String pemString)
       throws NoSuchAlgorithmException, InvalidKeySpecException {
     var decodedBytes = Base64.getDecoder().decode(pemString);
     var keySpec = new X509EncodedKeySpec(decodedBytes);
@@ -59,7 +81,7 @@ class JwtTokenProviderTest {
     return keyFactory.generatePublic(keySpec);
   }
 
-  public static PrivateKey decodePrivateKeyFromPEM(String pemString)
+  private static PrivateKey decodePrivateKeyFromPEM(String pemString)
       throws NoSuchAlgorithmException, InvalidKeySpecException {
     var decodedBytes = Base64.getDecoder().decode(pemString);
     var keySpec = new PKCS8EncodedKeySpec(decodedBytes);
