@@ -74,9 +74,9 @@ public class JwtTokenProvider {
 
   public static PublicKey decodePublicKeyFromPEM(String pemString)
       throws NoSuchAlgorithmException, InvalidKeySpecException {
-    byte[] decodedBytes = Base64.getDecoder().decode(pemString);
-    X509EncodedKeySpec keySpec = new X509EncodedKeySpec(decodedBytes);
-    KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+    var decodedBytes = Base64.getDecoder().decode(pemString);
+    var keySpec = new X509EncodedKeySpec(decodedBytes);
+    var keyFactory = KeyFactory.getInstance("RSA");
     return keyFactory.generatePublic(keySpec);
   }
 
