@@ -4,6 +4,7 @@ import jp.ne.yonem.restful.auth.LoginUserDetailsService;
 import jp.ne.yonem.restful.idp.JwtAuthenticationFilter;
 import jp.ne.yonem.restful.idp.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -33,6 +34,9 @@ public class SecurityConfig {
     "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html", "/webjars/**"
   };
 
+  @Value("${encryption.password}")
+  private String password;
+
   /**
    * パスワードエンコーダー
    *
@@ -41,6 +45,11 @@ public class SecurityConfig {
   @Bean
   public PasswordEncoder passwordEncoder() {
     return new BCryptPasswordEncoder();
+  }
+
+  @Bean
+  public EncryptionProvider encryptionUtil() {
+    return new EncryptionProvider(password);
   }
 
   @Bean
