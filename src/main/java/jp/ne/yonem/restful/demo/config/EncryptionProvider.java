@@ -5,9 +5,7 @@ import java.security.Key;
 import java.util.Base64;
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
-import org.springframework.stereotype.Component;
 
-@Component
 public class EncryptionProvider {
   private final Key secretKey;
   private static final String ALGORITHM = "AES";

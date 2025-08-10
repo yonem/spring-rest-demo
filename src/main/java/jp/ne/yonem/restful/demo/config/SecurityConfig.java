@@ -31,7 +31,7 @@ public class SecurityConfig {
   private final JwtTokenProvider jwtTokenProvider;
 
   private static final String[] SWAGGER_WHITELIST = {
-    "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html", "/webjars/**"
+    "/v3/api-docs/**", "/swagger**/**", "/swagger-ui.html", "/webjars/**"
   };
 
   @Value("${encryption.password}")
@@ -73,7 +73,11 @@ public class SecurityConfig {
         .sessionManagement(
             session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .authorizeHttpRequests(
-            auth -> auth.requestMatchers("/api/auth/**").permitAll().anyRequest().authenticated())
+            auth ->
+                auth.requestMatchers("/api/auth/**", "/api/kafka")
+                    .permitAll()
+                    .anyRequest()
+                    .authenticated())
         .addFilterBefore(jwtAuthenticationFilterBean(), UsernamePasswordAuthenticationFilter.class);
     return http.build();
   }
