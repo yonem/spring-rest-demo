@@ -7,10 +7,16 @@ import org.springframework.kafka.config.TopicBuilder;
 
 @Configuration
 public class KafkaConfig {
-  public static final String TOPIC_NAME = "my-topic";
+  public static final String TOPIC_NAME_1 = "my-topic-1";
+  public static final String TOPIC_NAME_2 = "my-topic-2";
 
   @Bean
-  public NewTopic topic() {
-    return TopicBuilder.name(TOPIC_NAME).partitions(1).replicas(1).build();
+  public NewTopic topic1() {
+    return TopicBuilder.name(TOPIC_NAME_1).partitions(1).replicas(1).build();
+  }
+
+  @Bean
+  public NewTopic topic2() {
+    return TopicBuilder.name(TOPIC_NAME_2).partitions(1).replicas(1).build();
   }
 }
