@@ -74,7 +74,7 @@ public class SecurityConfig {
             session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .authorizeHttpRequests(
             auth ->
-                auth.requestMatchers("/api/auth/**", "/api/kafka")
+                auth.requestMatchers("/api/auth/**", "/api/kafka", "/api/free/**")
                     .permitAll()
                     .anyRequest()
                     .authenticated())

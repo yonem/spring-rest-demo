@@ -49,12 +49,14 @@ class ReceiveCsvServiceTest {
   @DisplayName("正常系: CSVファイルの読み込み")
   void test01() {
     var act = sut.execute(1, mockCsvFile);
-    assertEquals(3, act.size());
-    act.forEach(System.out::println);
+    assertEquals(2, act.getBody().size());
+    System.out.println(act.getHeader());
+    System.out.println("================");
+    act.getBody().forEach(System.out::println);
 
     // 空ファイル
     act = sut.execute(1, emptyFile);
-    assertEquals(0, act.size());
+    assertEquals(0, act.getBody().size());
   }
 
   @Test
