@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 public class ValidSampleForm {
 
   @NotNull(message = "W100100")
-  private Integer messageId;
+  private String messageId;
 
   @NotBlank(message = "W100101")
   private String message;
