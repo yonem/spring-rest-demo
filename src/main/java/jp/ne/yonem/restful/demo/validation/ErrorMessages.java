@@ -1,4 +1,4 @@
-package jp.ne.yonem.restful.demo.hadler;
+package jp.ne.yonem.restful.demo.validation;
 
 import java.util.Arrays;
 import java.util.Map;
