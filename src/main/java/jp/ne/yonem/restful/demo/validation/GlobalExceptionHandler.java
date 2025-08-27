@@ -1,39 +1,50 @@
 package jp.ne.yonem.restful.demo.validation;
 
-import jakarta.validation.metadata.ConstraintDescriptor;
-import java.text.MessageFormat;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
-import jp.ne.yonem.restful.demo.dto.ErrorResponse;
+import jp.ne.yonem.restful.demo.dto.MessageResponse;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-@RestControllerAdvice
+@ControllerAdvice
+@RequiredArgsConstructor
 public class GlobalExceptionHandler {
+  private final List<MessageResolverStrategy> messageResolvers;
 
   @ExceptionHandler(MethodArgumentNotValidException.class)
-  @ResponseStatus(HttpStatus.BAD_REQUEST)
-  public List<ErrorResponse> handleValidationExceptions(MethodArgumentNotValidException ex) {
+  public ResponseEntity<Map<String, List<MessageResponse>>> handleValidationExceptions(
+      MethodArgumentNotValidException ex) {
     var result = ex.getBindingResult();
-    var errors = new ArrayList<ErrorResponse>();
 
-    for (var error : result.getAllErrors()) {
-      if (error instanceof FieldError fieldError) {
-        if (Objects.nonNull(fieldError.getDefaultMessage())) {
-          var msg = ErrorMessages.of(fieldError.getDefaultMessage());
-          var descriptor = fieldError.unwrap(ConstraintDescriptor.class);
-          errors.add(
-              new ErrorResponse(
-                  msg.getMessageId(),
-                  MessageFormat.format(msg.getMessage(), descriptor.getAttributes().values())));
-        }
-      }
-    }
-    return errors;
+    var errors =
+        result.getAllErrors().stream()
+            .map(
+                error -> {
+                  var messageId =
+                      Objects.nonNull(error.getDefaultMessage())
+                          ? error.getDefaultMessage()
+                          : "E999";
+                  var message = "不明なメッセージ";
+                  var fieldError = (error instanceof FieldError) ? (FieldError) error : null;
+                  var target = result.getTarget();
+                  var resolver =
+                      messageResolvers.stream()
+                          .filter(s -> s.supports(messageId))
+                          .findFirst()
+                          .orElse(null);
+
+                  if (Objects.nonNull(resolver)) {
+                    message = resolver.resolveMessage(messageId, target, fieldError);
+                  }
+                  return new MessageResponse(messageId, message);
+                })
+            .toList();
+    return new ResponseEntity<>(Map.of("error", errors), HttpStatus.BAD_REQUEST);
   }
 }
