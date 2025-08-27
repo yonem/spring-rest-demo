@@ -3,6 +3,7 @@ package jp.ne.yonem.restful.demo.controller;
 import jakarta.validation.Valid;
 import java.util.List;
 import jp.ne.yonem.restful.demo.dto.CsvResponse;
+import jp.ne.yonem.restful.demo.form.PasswordForm;
 import jp.ne.yonem.restful.demo.form.ValidSampleForm;
 import jp.ne.yonem.restful.demo.service.ValidSampleService;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +27,11 @@ public class ValidSampleController {
   @PostMapping("/service-valid")
   public String validOnService(@RequestBody ValidSampleForm form) {
     service.execute(form);
+    return "Validation successful.";
+  }
+
+  @PostMapping("/custom-valid")
+  public String customValid(@Valid @RequestBody PasswordForm form) {
     return "Validation successful.";
   }
 }

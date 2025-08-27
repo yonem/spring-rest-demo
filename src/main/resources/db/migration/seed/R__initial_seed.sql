@@ -1,5 +1,6 @@
 DELETE FROM users;
 DELETE FROM products;
+DELETE FROM password_policy;
 
 INSERT INTO users (id, username, email, password, roles) VALUES
 -- パスワードは 'password' をbcryptでハッシュ化したもの
@@ -12,3 +13,6 @@ INSERT INTO products (name, price, description) VALUES
 ('Laptop Pro', 1200.00, 'Powerful laptop for professionals.'),
 ('Wireless Mouse', 25.50, 'Ergonomic wireless mouse.'),
 ('USB-C Hub', 49.99, 'Multi-port USB-C adapter.');
+
+INSERT INTO password_policy (id, min, max, kinds, comb) VALUES
+(1, 4, 8, 'lusd', 2);
