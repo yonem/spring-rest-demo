@@ -1,11 +1,11 @@
 package jp.ne.yonem.restful.demo.form;
 
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jp.ne.yonem.restful.demo.validation.PasswordPolicyCheck;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.validator.constraints.Length;
 
 @Getter
 @AllArgsConstructor
@@ -13,8 +13,5 @@ import org.hibernate.validator.constraints.Length;
 @PasswordPolicyCheck
 public class PasswordForm {
   @NotNull private int policyId;
-  @NotNull private String password;
-
-  @Length(min = 3, max = 10, message = "E002")
-  private String name;
+  @NotBlank private String password;
 }

@@ -13,7 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @SpringBootTest
 @Transactional
-class PasswordFormTest {
+class AccountFormTest {
   @Autowired private Validator validator;
   @Autowired private JdbcTemplate jdbcTemplate;
 
@@ -24,51 +24,45 @@ class PasswordFormTest {
   }
 
   @Test
-  @DisplayName("パスワードポリシーを満たす場合")
-  public void testValidPassword() {
-    var form = new PasswordForm(1, "Password123!", "name");
-    var violations = validator.validate(form);
-    assertTrue(violations.isEmpty());
+  @DisplayName("正常系")
+  public void test01() {
+    var form = new AccountForm(1, "Password123!", "123");
+    var act = validator.validate(form);
+    assertTrue(act.isEmpty());
   }
 
   @Test
-  @DisplayName("文字数が少なすぎる場合")
-  public void testPasswordTooShort() {
-    var form = new PasswordForm(1, "Pass11!", "name");
-    var violations = validator.validate(form);
-    assertFalse(violations.isEmpty());
+  @DisplayName("異常系")
+  public void test02() {
 
-    var violation = violations.iterator().next();
-    assertEquals("E001", violation.getMessageTemplate());
-  }
+    // 文字数不足
+    var form = new AccountForm(1, "Pass11!", "12");
+    var act = validator.validate(form);
+    assertEquals(2, act.size());
 
-  @Test
-  @DisplayName("文字数が多すぎる場合")
-  public void testPasswordTooLong() {
-    var form = new PasswordForm(1, "Password12345678!", "name");
-    var violations = validator.validate(form);
-    assertFalse(violations.isEmpty());
-    var violation = violations.iterator().next();
-    assertEquals("E001", violation.getMessageTemplate());
-  }
+    // 文字数超過
+    form = new AccountForm(1, "Password12345678!", "1234567890!");
+    act = validator.validate(form);
+    assertEquals(2, act.size());
 
-  @Test
-  @DisplayName("文字種が足りない場合 (数字がない)")
-  public void testPasswordMissingKinds() {
-    var form = new PasswordForm(1, "password!", "name");
-    var violations = validator.validate(form);
-    assertFalse(violations.isEmpty());
-    var violation = violations.iterator().next();
-    assertEquals("E001", violation.getMessageTemplate());
-  }
+    // 空文字
+    form = new AccountForm(1, "", "");
+    act = validator.validate(form);
+    assertEquals(4, act.size());
 
-  @Test
-  @DisplayName("指定された文字種以外を使用している場合")
-  public void testPasswordContainsInvalidKinds() {
-    var form = new PasswordForm(1, "password123日本語", "name");
-    var violations = validator.validate(form);
-    assertFalse(violations.isEmpty());
-    var violation = violations.iterator().next();
-    assertEquals("E001", violation.getMessageTemplate());
+    // ポリシーが存在しない
+    form = new AccountForm(99, "Password123!", "123");
+    act = validator.validate(form);
+    assertEquals(1, act.size());
+
+    // 文字種不足
+    form = new AccountForm(1, "password!", "123");
+    act = validator.validate(form);
+    assertEquals(1, act.size());
+
+    // 指定文字種以外
+    form = new AccountForm(1, "Pass123日本語!", "123");
+    act = validator.validate(form);
+    assertEquals(1, act.size());
   }
 }
