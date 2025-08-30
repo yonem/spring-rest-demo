@@ -2,18 +2,17 @@ package jp.ne.yonem.restful.demo.validation;
 
 import java.util.List;
 import java.util.Objects;
+import jp.ne.yonem.restful.demo.controller.MessageUtil;
 import jp.ne.yonem.restful.demo.form.PasswordForm;
 import jp.ne.yonem.restful.demo.mapper.PasswordPolicyMapper;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.MessageSource;
-import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.FieldError;
 
 @Component
 @RequiredArgsConstructor
 public class PasswordPolicyMessageResolver implements MessageResolverStrategy {
-  private final MessageSource messageSource;
+  private final MessageUtil messageUtil;
   private final PasswordPolicyMapper mapper;
   private final List<String> PWD_POLICY_IDS = List.of("E001");
 
@@ -30,10 +29,10 @@ public class PasswordPolicyMessageResolver implements MessageResolverStrategy {
     if (Objects.nonNull(policy)) {
       var args =
           new Object[] {policy.getMin(), policy.getMax(), policy.getKinds(), policy.getComb()};
-      return messageSource.getMessage(messageId, args, LocaleContextHolder.getLocale());
+      return messageUtil.getMessage(messageId, args);
     }
 
-    return messageSource.getMessage(messageId, null, LocaleContextHolder.getLocale());
+    return messageUtil.getMessage(messageId);
   }
 
   private Integer getPolicyIdFromTarget(Object target) {
