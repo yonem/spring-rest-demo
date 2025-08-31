@@ -19,11 +19,11 @@ public class MessageUtil {
     return messageSource.getMessage(id, arg, LocaleContextHolder.getLocale());
   }
 
-  public MessageResponse getMessageResponse(String id) {
-    return getMessageResponse(id, new Object[0]);
+  public MessageResponse getResponse(String id) {
+    return getResponse(id, new Object[0]);
   }
 
-  public MessageResponse getMessageResponse(String id, Object... arg) {
+  public MessageResponse getResponse(String id, Object... arg) {
     return new MessageResponse(id, getMessage(id, arg));
   }
 }

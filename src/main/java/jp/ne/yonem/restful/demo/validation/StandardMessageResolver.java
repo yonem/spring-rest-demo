@@ -1,5 +1,6 @@
 package jp.ne.yonem.restful.demo.validation;
 
+import java.util.List;
 import java.util.Objects;
 import jp.ne.yonem.restful.demo.controller.MessageUtil;
 import lombok.RequiredArgsConstructor;
@@ -10,6 +11,7 @@ import org.springframework.validation.FieldError;
 @RequiredArgsConstructor
 public class StandardMessageResolver implements MessageResolverStrategy {
   private final MessageUtil messageUtil;
+  private final List<String> LENGTH_CHECK_IDS = List.of("E002");
 
   @Override
   public boolean supports(String messageId) {
@@ -18,24 +20,30 @@ public class StandardMessageResolver implements MessageResolverStrategy {
 
   @Override
   public String resolveMessage(String messageId, Object target, FieldError fieldError) {
-    Object[] args = new Object[0];
+    var args = new Object[0];
 
     // FieldErrorが存在する場合
     if (Objects.nonNull(fieldError)) {
 
       // FieldErrorの引数リストを元にargsを構築
-      Object[] originalArgs = fieldError.getArguments();
+      var originalArgs = Objects.requireNonNull(fieldError.getArguments());
+      var field = originalArgs[0];
+      args = new Object[] {field};
 
       // 例: @Lengthや@Sizeアノテーションのメッセージを解決
-      if ("E002".equals(messageId) && Objects.requireNonNull(originalArgs).length >= 4) {
-        // @Lengthのアノテーション属性は、通常、インデックス2と3に格納される
-        Object min = originalArgs[2];
-        Object max = originalArgs[3];
-        args = new Object[] {min, max};
+      if (3 <= originalArgs.length) {
+        args = new Object[] {originalArgs[2], originalArgs[3], field};
 
-      } else {
+        if (LENGTH_CHECK_IDS.contains(messageId)) {
+          // @Lengthのアノテーション属性は、通常、インデックス2と3に格納される
+          var min = originalArgs[3];
+          var max = originalArgs[2];
+          args = new Object[] {min, max, field};
+        }
+
+      } else if (2 == originalArgs.length) {
         // E002以外の、標準的なプレースホルダーを持つメッセージに対応
-        args = originalArgs;
+        args = new Object[] {originalArgs[1], field};
       }
     }
     return messageUtil.getMessage(messageId, args);
