@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-@PasswordMatchesCheck
+@PasswordMatchesCheck(message = "E004")
 public class PasswordMatchesForm {
   private String password;
   private String rePassword;

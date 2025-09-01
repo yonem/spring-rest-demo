@@ -14,7 +14,7 @@ import java.lang.annotation.Target;
 @Target({TYPE})
 @Retention(RUNTIME)
 public @interface PasswordMatchesCheck {
-  String message() default "Passwords don't match";
+  String message() default "E004";
 
   Class<?>[] groups() default {};
 
