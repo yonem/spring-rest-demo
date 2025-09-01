@@ -18,7 +18,7 @@ public class PasswordMatchesValidator
       return form.getPassword().equals(form.getRePassword());
 
     } catch (Exception e) {
-      log.error("Password match invalid.", e);
+      log.error("Passwords don't match.", e);
       return false;
     }
   }

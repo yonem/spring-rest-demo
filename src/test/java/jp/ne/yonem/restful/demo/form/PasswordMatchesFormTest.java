@@ -2,6 +2,7 @@ package jp.ne.yonem.restful.demo.form;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import org.junit.jupiter.api.DisplayName;
@@ -22,6 +23,7 @@ class PasswordMatchesFormTest {
   void test02() {
     var act = validator.validate(new PasswordMatchesForm("password", "wrong password"));
     assertEquals(1, act.size());
+    assertEquals("E004", act.stream().map(ConstraintViolation::getMessage).toList().getFirst());
 
     act = validator.validate(new PasswordMatchesForm(null, "wrong password"));
     assertEquals(1, act.size());
