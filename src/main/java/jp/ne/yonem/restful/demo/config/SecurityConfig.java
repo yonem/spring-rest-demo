@@ -30,6 +30,10 @@ public class SecurityConfig {
   private final LoginUserDetailsService userDetailsService;
   private final JwtTokenProvider jwtTokenProvider;
 
+  private static final String[] PERMIT_WHITELIST = {
+    "/api/auth/**", "/api/kafka", "/api/free/**", "api/download/**"
+  };
+
   private static final String[] SWAGGER_WHITELIST = {
     "/v3/api-docs/**", "/swagger**/**", "/swagger-ui.html", "/webjars/**"
   };
@@ -73,11 +77,7 @@ public class SecurityConfig {
         .sessionManagement(
             session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .authorizeHttpRequests(
-            auth ->
-                auth.requestMatchers("/api/auth/**", "/api/kafka", "/api/free/**")
-                    .permitAll()
-                    .anyRequest()
-                    .authenticated())
+            auth -> auth.requestMatchers(PERMIT_WHITELIST).permitAll().anyRequest().authenticated())
         .addFilterBefore(jwtAuthenticationFilterBean(), UsernamePasswordAuthenticationFilter.class);
     return http.build();
   }
