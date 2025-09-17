@@ -12,7 +12,7 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 
 @Service
-public class UserCsvService {
+public class UserCsvDownloadService {
   private final List<User> users =
       List.of(new User("Alice", 25), new User("Bob", 30), new User("Charlie", 35));
 

@@ -10,8 +10,8 @@ import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-public class UserServiceTest {
-  @InjectMocks private UserCsvService sut;
+public class UserCsvDownloadServiceTest {
+  @InjectMocks private UserCsvDownloadService sut;
 
   @Test
   @DisplayName("ユーザーリストがCSV形式で正しく出力されること")
