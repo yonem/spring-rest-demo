@@ -31,7 +31,7 @@ public class SecurityConfig {
   private final JwtTokenProvider jwtTokenProvider;
 
   private static final String[] PERMIT_WHITELIST = {
-    "/api/auth/**", "/api/kafka", "/api/free/**", "api/download/**"
+    "/api/auth/**", "/api/kafka", "/api/free/**", "/api/download/**"
   };
 
   private static final String[] SWAGGER_WHITELIST = {
