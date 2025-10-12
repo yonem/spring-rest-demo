@@ -28,6 +28,17 @@ public class ZipCreationService {
   private static final String ZIP_EXTENSION = ".zip";
 
   /**
+   * 指定されたファイルパスのファイルをZIPに圧縮し、 ダウンロードに必要なヘッダーとバイト配列をDTOで返す唯一の実行メソッド。
+   *
+   * @param filePaths 圧縮対象のファイルのパスのリスト
+   * @return ダウンロードに必要な情報を含む DownloadFileResponse
+   * @throws IOException ZIP作成またはファイル操作中にエラーが発生した場合
+   */
+  public DownloadFileResponse execute(List<String> filePaths) throws IOException {
+    return execute(filePaths, null);
+  }
+
+  /**
    * 指定されたファイルパスのファイルをパスワード付きでZIPに圧縮し、 ダウンロードに必要なヘッダーとバイト配列をDTOで返す唯一の実行メソッド。
    *
    * @param filePaths 圧縮対象のファイルのパスのリスト
@@ -40,15 +51,20 @@ public class ZipCreationService {
     var zipFileName = "%s%s%s".formatted(ZIP_BASE_NAME, timestamp, ZIP_EXTENSION);
     var targetFiles = filePaths.stream().map(File::new).collect(Collectors.toList());
     var tempZipPath = Path.of(System.getProperty("java.io.tmpdir"), zipFileName);
+    var hasPassword = password != null && !password.isEmpty();
+    var zipFile =
+        hasPassword
+            ? new ZipFile(tempZipPath.toFile(), password.toCharArray())
+            : new ZipFile(tempZipPath.toFile());
 
     var parameters = new ZipParameters();
     parameters.setRootFolderNameInZip(
         "%s%s".formatted(zipFileName.replace(ZIP_EXTENSION, ""), File.separator));
-    parameters.setEncryptFiles(true);
+    parameters.setEncryptFiles(hasPassword);
     parameters.setEncryptionMethod(EncryptionMethod.AES);
     parameters.setAesKeyStrength(AesKeyStrength.KEY_STRENGTH_256);
 
-    try (var zipFile = new ZipFile(tempZipPath.toFile(), password.toCharArray())) {
+    try (zipFile) {
       zipFile.addFiles(targetFiles, parameters);
       var zipBytes = Files.readAllBytes(tempZipPath);
       var headers = new HttpHeaders();
