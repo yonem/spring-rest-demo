@@ -1,0 +1,60 @@
+version: '3.8'
+
+services:
+  # 1. ログ集約システム: Elasticsearch
+  elasticsearch-host:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.10.4
+    container_name: elasticsearch-host
+    environment:
+      # シングルノード設定
+      - discovery.type=single-node
+      # セキュリティを無効化 (検証目的)
+      - xpack.security.enabled=false
+      # Javaメモリ設定 (ローカル検証用)
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+    ports:
+      - "9200:9200"
+    healthcheck:
+      test: [ "CMD", "curl", "--fail", "http://localhost:9200" ]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+
+  # 2. ログ可視化: Kibana
+  kibana-host:
+    image: docker.elastic.co/kibana/kibana:8.10.4
+    container_name: kibana-host
+    ports:
+      - "5601:5601"
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch-host:9200
+    depends_on:
+      - elasticsearch-host
+
+  # 3. Javaアプリケーション環境 (Rocky9模擬サーバー)
+  stg-server:
+    # ローカルのDockerfileを使用してビルド
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: stg-server
+    ports:
+      - "8083:8083"
+    # アプリケーション起動スクリプトを実行
+    command: [ "/usr/local/bin/start-service.sh" ]
+    depends_on:
+      - elasticsearch-host
+
+  # 4. ログ収集エージェント: Fluent Bit
+  fluent-bit:
+    image: fluent/fluent-bit:latest
+    container_name: fluent-bit
+    volumes:
+      # Dockerのログファイル群をReadOnlyでマウント
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      # DockerソケットをReadOnlyでマウント (コンテナメタデータ取得用)
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      # 設定ファイルをマウント
+      - ./fluent-bit.conf:/fluent-bit/etc/fluent-bit.conf:ro
+    depends_on:
+      - elasticsearch-host
