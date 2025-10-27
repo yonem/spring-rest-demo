@@ -1,45 +1,52 @@
 # Staging環境 模擬デプロイ手順 (Rocky 9 + Docker)
 
-このドキュメントは、Java Spring Boot APIシステムをRocky
-Linux9環境にデプロイし、サービスとして運用するためのローカル検証手順をまとめたものです。Dockerを使用して、ターゲットサーバー（Locky9）の環境を模擬します。
+このドキュメントは、Java Spring Boot APIシステムをRocky Linux9環境にデプロイし、サービスとして運用するためのローカル検証手順をまとめたものです。
+**Docker Compose**を使用して、すべての環境（Javaアプリ、ログ集約システム）を模擬します。
 
 ## 前提条件
 
 * Dockerがインストールされ、実行可能であること。
+* **Docker Compose**がインストールされ、実行可能であること。
 * ローカルPCにMavenがインストールされ、Spring Bootアプリケーションのビルドが可能であること。
-* Spring Bootアプリケーションのプロジェクトルートで作業していること。
+* `Dockerfile`, `start-service.sh`, `fluent-bit.conf`, **`docker-compose.yml`** がプロジェクトルートに配置されていること。
 
-## 1\. ターゲット環境の準備 (Docker)
+-----
 
-Locky9サーバーの環境、ユーザー、JDK (Temurin 21 via SDKMAN\!) を設定したDockerコンテナを準備します。
+## 0\. ターゲット環境とログ集約システムの準備 (Docker Compose)
 
-### 1.1 $\text{Dockerfile}$の作成
+Javaアプリケーションの実行環境 (`stg-server`)、ログ集約システム (`elasticsearch-host`, `kibana-host`)
+、およびログコレクタ (`fluent-bit`) を一括で起動します。
 
-$\text{Dockerfile}$を作成します。
+### 0.1 コンテナイメージのビルドと全サービスの起動
 
-### 1.2 サービス起動スクリプト ($\text{start-service.sh}$) の作成
-
-`systemd`を簡易的に模倣し、アプリケーションをバックグラウンドで実行・再起動するためのスクリプトです。
-
-### 1.3 コンテナのビルドと起動
-
-$\text{Dockerfile}$と$\text{start-service.sh}$を同じディレクトリに配置し、ビルド・起動します。
+`docker-compose.yml`を参照し、Javaアプリのイメージをビルドし、すべてのサービスをバックグラウンドで起動します。
 
 ```bash
-# 1. コンテナイメージをビルド
-docker build -t rocky9-stg-env .
+# 1. コンテナイメージをビルドし、全サービスをバックグラウンドで起動
+# Javaアプリケーションのイメージビルドもここで行われます。
+docker compose up -d --build
 
-# 2. コンテナをバックグラウンドで起動 (ホストの8083ポートをコンテナにマッピング)
-docker run -d --name stg-server -p 8083:8083 rocky9-stg-env
+# 2. 起動状態の確認
+docker compose ps
+# すべてのコンテナ (stg-server, elasticsearch-host, kibana-host, fluent-bit) が
+# Running状態、またはelasticsearch-hostが (healthy) になるまで待ちます。
+```
 
-# 3. 起動ログの確認
-# アプリケーションがまだデプロイされていないため、「Waiting for deployment...」と表示されます。
+### 0.2 ログの確認
+
+アプリケーションがまだデプロイされていないため、`stg-server`は警告を表示して待機状態に入ります。
+
+```bash
+# 1. stg-serverの起動ログを確認
+# 「WARNING: /opt/api-service/app.jar not found. Waiting for deployment...」と表示されます。
 docker logs -f stg-server
 ```
 
-## 2\. アプリケーションのビルドとデプロイ
+-----
 
-### 2.1 アプリケーションのビルド
+## 1\. アプリケーションのビルドとデプロイ
+
+### 1.1 アプリケーションのビルド
 
 ローカルでSpring Bootアプリケーションをビルドします。
 
@@ -51,9 +58,9 @@ mvn clean package -DskipTests
 # (例: application-stg.properties)
 ```
 
-### 2.2 ファイルコピー (デプロイ)
+### 1.2 ファイルコピー (デプロイ)
 
-ビルドしたJARファイルとステージング用プロパティファイルを、実行中のコンテナにコピーします。
+ビルドしたJARファイルとステージング用プロパティファイルを、実行中の`stg-server`コンテナにコピーします。
 
 ```bash
 # 1. JARファイルのパスを取得 (バージョン名は適宜変更してください)
@@ -66,15 +73,14 @@ docker cp ${JAR_PATH} stg-server:/opt/api-service/app.jar
 docker cp src/main/resources/application-stg.properties stg-server:/opt/api-service/application-stg.properties
 ```
 
-### 2.3 サービスの再起動（デプロイ後の処理）
+### 1.3 サービスの再起動（デプロイ後の処理）
 
-実際のCI/CDでは`systemctl restart`
-に相当する操作を行います。ここでは、実行中のプロセスを強制終了することで、$\text{start-service.sh}$による自動再起動を誘発します。
+ファイルのコピーが完了すると、`start-service.sh`が自動的にアプリケーションの存在を検知し、起動します。再デプロイを行う場合は、実行中のプロセスを強制終了します。
 
 ```bash
 # 1. コンテナ内で実行中のプロセスIDを取得し、強制終了
 # (start-service.sh がすぐにサービスを再起動します)
-docker exec stg-server /bin/bash -c "kill -TERM \$(cat /var/run/api-service.pid)"
+docker exec stg-server /bin/bash -c "kill -TERM \$(pgrep -f 'java -jar /opt/api-service/app.jar')"
 ```
 
 **【重要】CI/CDでの実際のデプロイコマンド**
@@ -86,14 +92,29 @@ docker exec stg-server /bin/bash -c "kill -TERM \$(cat /var/run/api-service.pid)
 sudo systemctl restart api-service
 ```
 
-## 3\. 動作確認
+-----
 
-サービスがステージングプロファイルで起動し、外部からアクセスできることを確認します。
+## 2\. 動作確認
+
+サービスが起動し、ログがElasticsearchに転送されていることを確認します。
 
 ```bash
-# 1. コンテナログでアプリケーションの起動を確認
+# 1. stg-serverのコンテナログでアプリケーションの起動を確認
 docker logs -f stg-server
 
-# 2. APIエンドポイントへアクセス (ポート8083)
+# 2. Fluent Bitログを確認 (Elasticsearchへの転送状況を確認)
+docker logs -f fluent-bit
+# 「[es: info] flush_mode=async, status=200」のような転送成功を示すログを確認
+
+# 3. APIエンドポイントへアクセス (ポート8083)
 curl http://localhost:8083/your/api/endpoint
 ```
+
+### ログのトレーサビリティ確認 (Kibana)
+
+KibanaのWebインターフェースを通じて、ログが正しく集約されているか確認します。
+
+1. ブラウザで **`http://localhost:5601`** にアクセスします。
+2. 左側のメニューから **Analytics** -\> **Discover** を選択します。
+3. `java-app-*`のデータビューを作成します。
+4. APIアクセス(`curl`)によって発生したログがKibana上で検索・表示できることを確認します。
