@@ -40,6 +40,7 @@ services:
     container_name: stg-server
     ports:
       - "8083:8083"
+    restart: unless-stopped
     # アプリケーション起動スクリプトを実行
     command: [ "/usr/local/bin/start-service.sh" ]
     depends_on:
