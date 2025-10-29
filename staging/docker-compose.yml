@@ -57,5 +57,6 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       # 設定ファイルをマウント
       - ./fluent-bit.conf:/fluent-bit/etc/fluent-bit.conf:ro
+      - ./fluent-bit-parsers.conf:/fluent-bit/etc/fluent-bit-parsers.conf:ro
     depends_on:
       - elasticsearch-host
