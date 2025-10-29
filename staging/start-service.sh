@@ -27,7 +27,9 @@ echo "Starting API Service in foreground..."
 # apiuserとしてアプリケーションを実行
 /usr/bin/sudo -u apiuser sh -c "
     source /home/apiuser/.sdkman/bin/sdkman-init.sh && \
-    exec java -jar /opt/api-service/app.jar --spring.profiles.active=stg
+    exec java -jar /opt/api-service/app.jar \
+    --spring.profiles.active=stg \
+    --spring.config.location=file:/opt/api-service/application-stg.properties
 "
 
 # execで実行した場合、この後の行は到達しない

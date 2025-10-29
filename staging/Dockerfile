@@ -3,7 +3,7 @@ FROM rockylinux:9
 
 # 必要なパッケージのインストール (git, sudo, curl, unzip, wget, procps)
 RUN dnf update -y && \
-    dnf install -y git sudo which curl unzip wget procps && \
+    dnf install -y --allowerasing git sudo which curl unzip wget procps initscripts **zip** && \
     dnf clean all
 
 # apiuser の作成とsudo権限の付与 (パスワードなしでsudo可能)
