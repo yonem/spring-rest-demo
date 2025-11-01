@@ -26,6 +26,9 @@ Javaアプリケーションの実行環境 (`stg-server`)、ログ集約シス�
 # Javaアプリケーションのイメージビルドもここで行われます。
 docker compose up -d --build
 
+# ※ 環境依存composeファイルを分割する場合
+docker compose -f docker-compose.yml -f docker-compose-stg.yml up -d --build
+
 # 2. 起動状態の確認
 docker compose ps
 # すべてのコンテナ (stg-server, elasticsearch-host, kibana-host, fluent-bit) が
@@ -71,6 +74,7 @@ docker cp ${JAR_PATH} stg-server:/opt/api-service/app.jar
 
 # 3. プロパティファイルをコピー
 docker cp application-stg.properties stg-server:/opt/api-service/application-stg.properties
+docker cp logback-spring.xml stg-server:/opt/api-service/logback-spring-stg.xml
 ```
 
 ### 1.3 サービスの再起動（デプロイ後の処理）
