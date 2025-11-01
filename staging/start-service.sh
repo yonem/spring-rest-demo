@@ -26,8 +26,9 @@ fi
 echo "Starting API Service in foreground..."
 # apiuserとしてアプリケーションを実行
 /usr/bin/sudo -u apiuser sh -c "
-    source /home/apiuser/.sdkman/bin/sdkman-init.sh && \
-    exec java -jar /opt/api-service/app.jar \
+source /home/apiuser/.sdkman/bin/sdkman-init.sh && \
+    exec java -Dlogging.config=file:/opt/api-service/logback-spring-stg.xml \
+    -jar /opt/api-service/app.jar \
     --spring.profiles.active=stg \
     --spring.config.location=file:/opt/api-service/application-stg.properties
 "
