@@ -65,7 +65,7 @@ docker compose -f docker-compose.yml -f docker-compose-stg.yml ps
 ```bash
 # Flyway SQLファイルが格納されているローカルディレクトリのパス
 MIGRATION_DIR="migration" 
-FLYWAY_IMAGE="flyway/flyway:10.10.0-alpine"
+FLYWAY_IMAGE="flyway/flyway:11.10.0-alpine"
 
 # データベース接続情報（application-stg.propertiesより）
 DB_HOST="db"  # docker-compose-stg.yml のサービス名
@@ -132,7 +132,10 @@ docker logs -f stg-server
 docker logs -f fluent-bit
 # 「[es: info] flush_mode=async, status=200」のような転送成功を示すログを確認
 
-# 3. APIエンドポイントへアクセス (ポート8083)
+# 3. Jenkinsログを確認
+docker logs -f jenkins-server
+
+# 4. APIエンドポイントへアクセス (ポート8083)
 http://localhost:8083/
 ```
 
