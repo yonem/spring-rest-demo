@@ -52,45 +52,11 @@ docker compose -f docker-compose.yml -f docker-compose-stg.yml ps
 
 -----
 
-## 2\. 初回DBマイグレーションの実行（アプリケーションデプロイ前に必須）
-
-データベースコンテナ (`db`) が起動していることを確認した後、FlywayやLiquibaseなどのマイグレーションツールを使って、データベースのスキーマを初期化します。
-
-> **注:** 通常、マイグレーションはCI/CDパイプラインのデプロイ直前のジョブとして実行しますが、環境構築時の初期設定として手動で実行します。
-
-### 2.1 マイグレーション実行用の作業コンテナの起動
-
-一時的なマイグレーション用コンテナを起動し、マイグレーションを実行します。
-
-```bash
-# Flyway SQLファイルが格納されているローカルディレクトリのパス
-MIGRATION_DIR="migration" 
-FLYWAY_IMAGE="flyway/flyway:11.10.0-alpine"
-
-# データベース接続情報（application-stg.propertiesより）
-DB_HOST="db"  # docker-compose-stg.yml のサービス名
-DB_NAME="your_dev_db"
-DB_USER="your_user"
-DB_PASS="your_password"
-
-# Flyway CLI コンテナを使用してマイグレーションを実行
-docker run --rm \
-  --network staging_default \
-  -v "$(pwd)/${MIGRATION_DIR}:/flyway/sql" \
-  ${FLYWAY_IMAGE} \
-  -url="jdbc:postgresql://${DB_HOST}:5432/${DB_NAME}" \
-  -user="${DB_USER}" \
-  -password="${DB_PASS}" \
-  migrate
-```
-
------
-
-## 3\. アプリケーションのデプロイ（初回の配置）
+## 2\. アプリケーションのデプロイ（初回の配置）
 
 デプロイ手順は、CI/CDパイプラインが実行するコマンドと同じロジックに従います。
 
-### 3.1 ファイルコピー (デプロイ)
+### 2.1 ファイルコピー (デプロイ)
 
 ビルドしたJARファイルとステージング用設定ファイルを、実行中の`stg-server`コンテナにコピーします。
 
@@ -106,7 +72,7 @@ docker cp application-stg.properties stg-server:/opt/api-service/application-stg
 docker cp logback-spring.xml stg-server:/opt/api-service/logback-spring-stg.xml
 ```
 
-### 3.2 サービスの再起動（デプロイ後の処理）
+### 2.2 サービスの再起動（デプロイ後の処理）
 
 ファイルのコピーが完了すると、`start-service.sh`が自動的にアプリケーションの存在を検知し、起動します。
 
@@ -117,33 +83,3 @@ docker cp logback-spring.xml stg-server:/opt/api-service/logback-spring-stg.xml
 # (start-service.sh がすぐにサービスを再起動します)
 docker exec stg-server /bin/bash -c "kill -TERM \$(pgrep -f 'java -jar /opt/api-service/app.jar')"
 ```
-
------
-
-## 4\. 動作確認
-
-サービスが起動し、ログがElasticsearchに転送されていることを確認します。
-
-```bash
-# 1. stg-serverのコンテナログでアプリケーションの起動を確認
-docker logs -f stg-server
-
-# 2. Fluent Bitログを確認 (Elasticsearchへの転送状況を確認)
-docker logs -f fluent-bit
-# 「[es: info] flush_mode=async, status=200」のような転送成功を示すログを確認
-
-# 3. Jenkinsログを確認
-docker logs -f jenkins-server
-
-# 4. APIエンドポイントへアクセス (ポート8083)
-http://localhost:8083/
-```
-
-### ログのトレーサビリティ確認 (Kibana)
-
-KibanaのWebインターフェースを通じて、ログが正しく集約されているか確認します。
-
-1. ブラウザで **`http://localhost:5601`** にアクセスします。
-2. 左側のメニューから **Analytics** -\> **Discover** を選択します。
-3. `java-app-*`のデータビューを作成します。
-4. APIアクセスによって発生したログがKibana上で検索・表示できることを確認します。

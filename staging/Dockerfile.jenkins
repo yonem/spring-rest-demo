@@ -1,0 +1,17 @@
+# ベースイメージとして公式のJenkins LTSイメージを使用
+FROM jenkins/jenkins:lts-jdk21
+
+# ユーザーをrootに切り替えて、必要なツール（openssh-client）をインストール
+USER root
+RUN apt-get update && apt-get install -y openssh-client
+
+# SSHキーを自動生成するスクリプトをコンテナ内に配置
+COPY generate-ssh-key.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/generate-ssh-key.sh
+
+# コンテナ起動時にキー生成スクリプトを実行するラッパースクリプトを設定
+ENTRYPOINT ["/usr/local/bin/generate-ssh-key.sh"]
+CMD ["/usr/bin/tini", "--", "/usr/local/bin/jenkins.sh"]
+
+# ユーザーを元に戻す
+USER jenkins
