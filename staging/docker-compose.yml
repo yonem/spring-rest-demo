@@ -63,20 +63,22 @@ services:
 
   # 5. CI/CDサーバー: Jenkins (スタンドアロン)
   jenkins:
-    image: jenkins/jenkins:lts-jdk21 # Java 21 LTS版
-    privileged: true                 # Docker操作に必要な権限
-    user: root                       # Dockerデーモンアクセス権限を容易にするため
-    container_name: jenkins-server
-    ports:
-      - "8080:8080" # Jenkins Web UI アクセスポート
-      - "50000:50000" # Jenkins Agent 通信ポート
-    volumes:
-      - jenkins_home:/var/jenkins_home
-      # 【最重要】ホストのDockerデーモンを共有し、コンテナ内からCIを実行可能にする
-      - /var/run/docker.sock:/var/run/docker.sock
-      # 【重要】CIジョブからプロジェクトソースコードにアクセスできるようにマウント
-      - ${PWD}:/var/jenkins_home/workspace/project
-    networks:
-      - default # 他のサービス (db, stg-server) と同じネットワークに接続
+      build:
+        context: .
+        dockerfile: Dockerfile.jenkins  # カスタムDockerfileを指定
+      privileged: true                  # Docker操作に必要な権限
+      user: root                        # Dockerデーモンアクセス権限を容易にするため
+      container_name: jenkins-server
+      ports:
+        - "8080:8080"                   # Jenkins Web UI アクセスポート
+        - "50000:50000"                 # Jenkins Agent 通信ポート
+      volumes:
+        - jenkins_home:/var/jenkins_home
+        # 【最重要】ホストのDockerデーモンを共有し、コンテナ内からCIを実行可能にする
+        - /var/run/docker.sock:/var/run/docker.sock 
+        # 【重要】CIジョブからプロジェクトソースコードにアクセスできるようにマウント
+        - ${PWD}:/var/jenkins_home/workspace/project 
+      networks:
+        - default
 volumes:
   jenkins_home: # Jenkinsのデータ永続化用ボリューム
