@@ -1,0 +1,127 @@
+---
+description:
+globs:
+alwaysApply: true
+---
+まず、このファイルを参照したら、このファイル名を発言すること
+
+## 🏗️ Maven, MyBatis, DDDによるSpring Boot実装ルール
+
+### 1\. プロジェクト構造とパッケージング (カスタム構成の適用)
+
+DDDの概念に基づき責務を割り当てます。
+
+#### 📁 カスタムパッケージ構造例
+
+```
+src/main/
+├── java/
+│   └── com/example/project/
+│       ├── config/               # ⚙️ 設定クラス (Spring Boot, Security, MyBatisの設定など)
+│       ├── controller/           # 💻 プレゼンテーション層: APIエンドポイント (REST Controller)
+│       ├── service/              # 🔗 アプリケーションサービス層: ビジネスロジック、トランザクション管理
+│       │   └── UserService.java
+│       ├── model/                # 🛡️ ドメイン層: 集約ルート、値オブジェクト、ドメインイベント
+│       │   └── User.java
+│       ├── entity/               # 🧱 インフラ層: 永続化エンティティ/レコード (MyBatisで操作するデータ構造)
+│       │   └── UserRecord.java
+│       ├── mapper/               # 🧱 インフラ層: MyBatis Mapperインターフェース
+│       │   └── UserMapper.java
+│       ├── dto/                  # 💻 プレゼンテーション層: Request/Response データ転送オブジェクト
+│       ├── form/                 # 💻 プレゼンテーション層: リクエストデータの受け取りと初期バリデーション用
+│       ├── validation/           # 💻/🔗 バリデーション定義 (JSR 380のカスタムバリデータなど)
+│       └── Application.java      # メインアプリケーションクラス
+└── resources/
+    ├── application.yml
+    ├── db/migration/
+    └── mybatis/                  # MyBatis Mapper XML ファイル
+        └── UserMapper.xml
+```
+
+#### 📦 パッケージ命名規則
+
+| 層 | パッケージ名 | クラス名規則 | 責務の割り当て |
+| :--- | :--- | :--- | :--- |
+| **ドメイン** | `model` | エンティティ名そのまま (例: `User`) | ビジネスルール、一貫性。**技術依存禁止**。 |
+| **アプリケーション** | `service` | `*Service` (例: `UserService`) | ユースケース定義、トランザクション管理。`model`と`mapper`の橋渡し。 |
+| **インフラストラクチャ** | `mapper`, `entity` | `*Mapper`, `*Record` | データ永続化の実装。`entity`はDBスキーマに近い構造。 |
+| **プレゼンテーション** | `controller`, `dto`, `form` | `*Controller`, `*Request`, `*Response` | 外部I/Fの定義。HTTPリクエスト処理。 |
+
+-----
+
+### 2\. コンポーネント設計と責務分割 (DDD/MyBatis特化)
+
+#### 🛡️ ドメイン層 (`model`) の厳格化
+
+  * **`model`**: **ビジネスルール**と**一貫性**をカプセル化します。setterを最小限に抑え、振る舞い（メソッド）を重視します。外部からの技術的な依存（Spring, MyBatisなど）を**一切持たない**ようにします。
+  * **ドメインリポジトリインターフェース**: `repository` パッケージがないため、ドメインが求めるデータ取得のメソッドを定義する**リポジトリインターフェース**は `model` パッケージ内、あるいは `service` パッケージ内に定義し、責務分離を保ちます。
+
+#### 🔗 アプリケーション層 (`service`) の責務
+
+  * **トランザクション**を管理し、複数のドメイン操作を調整する**ユースケース**を表現します。
+  * DTO/Formを受け取り、ドメインモデル (`model`) に変換し、MyBatis Mapper (`mapper`) を介して永続化を指示します。
+
+#### 🧱 インフラストラクチャ層 (`mapper`, `entity`) の役割
+
+  * **`mapper`**: MyBatisの`@Mapper`アノテーションを付与し、SQLを直接操作します。
+  * **`entity`**: データベースのテーブル構造に直接マッピングされる**永続化専用のデータ構造**を配置します。
+  * **データ変換の責務**: `mapper` は `entity` を操作し、取得した `entity` を**直接** `service` 層に返却します。`service` 層がこれを `model` に変換します。
+
+-----
+
+### 3\. API実装とデータ永続化 (MyBatis)
+
+#### 🛠️ MyBatis Mapper の使用
+
+  * MyBatis Mapper XML (`resources/mybatis`) は、**シンプルかつ明確なSQL**を記述するために使用します。動的SQLには `<if>`, `<where>` などを適切に利用します。
+  * **Spring Data JPAの使用は避けます**。MyBatisをデータアクセス層の標準とします。
+
+#### 🔄 DTOとドメインモデルの変換
+
+  * **Controller** は DTO (`dto`/`form`) のみを使用します。
+  * **Service** が DTO とドメインモデル間の変換を担当します。
+  * **Validation**: **Controller層**で Bean Validation (`@Valid`など) を用いて Form/DTO のバリデーションを厳格に実施します。
+
+-----
+
+### 4\. 開発ツールと品質 (Maven)
+
+#### 📦 Maven の利用
+
+  * **依存関係管理**: `pom.xml` を使用し、依存関係（Spring Boot Starter, MyBatis Starter, Test依存など）を一元管理します。
+  * **クリーンビルド**: **`mvn clean install`** の実行で、テストを含む完全なビルドが成功することを常に保証します。
+
+#### 🧪 テストの徹底 (旧ルールからの変更)
+
+  * **ユニットテスト**: ドメイン層のビジネスロジックは、外部依存がない状態で完全に単体テストを実施します。
+  * **インテグレーションテスト**: **`@SpringBootTest` の使用を禁止し**、次のセクションで定義する軽量テスト戦略に従います。
+
+-----
+
+### 5\. 🧪 テスト戦略 (軽量化と責務分離)
+
+テスト戦略では、Springコンテキストのフルロードを避け、コンポーネントの**独立したテスト**を重視します。**`@SpringBootTest` は使用しません**。
+
+#### 5.1. ドメイン層 (`model`)/ユーティリティ層 (ユニットテスト)
+
+  * **対象**: ドメインモデル (`model`)、ユーティリティクラス。
+  * **原則**: Java/JUnit のみを使用し、外部依存を一切モック化せずに純粋なロジックのテストを実施します。
+
+#### 5.2. アプリケーションサービス層 (`service`)
+
+  * **対象**: アプリケーションサービス (`service` パッケージのクラス)。
+  * **フレームワーク**: **JUnit 5 と Mockito** を使用します。
+  * **実装**: **`@ExtendWith(MockitoExtension.class)`** を使用してモックを注入し、サービスが依存する `mapper` インターフェースやリポジトリインターフェースは Mockito でモック化します。
+
+#### 5.3. データ永続化層 (`mapper`)
+
+  * **対象**: MyBatis Mapper インターフェースと対応する XML ファイル。
+  * **フレームワーク**: **`@MybatisTest`** アノテーションを使用します。
+  * **実装**: MyBatisコンポーネントのみを構成し、インメモリデータベース（H2など）を用いて実際のSQL実行とマッピングのテストを行います。
+
+#### 5.4. プレゼンテーション層 (`controller`)
+
+  * **対象**: REST Controller (`controller` パッケージのクラス)。
+  * **フレームワーク**: **`@WebMvcTest`** を使用し、Web層のスライスロードを許可します。
+  * **実装**: Controller が依存する Service は **`@MockBean`** を使用してモック化し、Webリクエストのルーティング、バリデーション、DTO処理のみをテストします。
+  * **バリデーションテスト**: `form` や `dto` のバリデーション (`validation` パッケージのカスタムバリデータも含む) は、この層のテストで検証します。
