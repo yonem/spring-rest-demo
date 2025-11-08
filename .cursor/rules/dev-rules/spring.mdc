@@ -7,65 +7,77 @@ alwaysApply: true
 
 ## 🏗️ Maven, MyBatis, DDDによるSpring Boot実装ルール
 
-### 1\. プロジェクト構造とパッケージング (カスタム構成の適用)
+### 1\. プロジェクト構造とパッケージング
 
 DDDの概念に基づき責務を割り当てます。
 
-#### 📁 カスタムパッケージ構造例
+#### 📁 パッケージ構造例
 
 ```
 src/main/
 ├── java/
 │   └── com/example/project/
-│       ├── config/               # ⚙️ 設定クラス (Spring Boot, Security, MyBatisの設定など)
-│       ├── controller/           # 💻 プレゼンテーション層: APIエンドポイント (REST Controller)
-│       ├── service/              # 🔗 アプリケーションサービス層: ビジネスロジック、トランザクション管理
+│       ├── config/               # ⚙️ 設定層: Spring Boot, Security, MyBatisなどの技術設定
+│       │   └── AppConfig.java
+│       ├── presentation/         # 💻 プレゼンテーション層 (Web/API)
+│       │   ├── controller/       # REST API エンドポイント
+│       │   │   └── UserController.java
+│       │   └── dto/              # Request/Response データ転送オブジェクト (DTO/Form)
+│       │       └── UserRequest.java
+│       ├── application/          # 🔗 アプリケーションサービス層: ユースケース、トランザクション管理
 │       │   └── UserService.java
-│       ├── model/                # 🛡️ ドメイン層: 集約ルート、値オブジェクト、ドメインイベント
-│       │   └── User.java
-│       ├── entity/               # 🧱 インフラ層: 永続化エンティティ/レコード (MyBatisで操作するデータ構造)
-│       │   └── UserRecord.java
-│       ├── mapper/               # 🧱 インフラ層: MyBatis Mapperインターフェース
-│       │   └── UserMapper.java
-│       ├── dto/                  # 💻 プレゼンテーション層: Request/Response データ転送オブジェクト
-│       ├── form/                 # 💻 プレゼンテーション層: リクエストデータの受け取りと初期バリデーション用
-│       ├── validation/           # 💻/🔗 バリデーション定義 (JSR 380のカスタムバリデータなど)
-│       └── Application.java      # メインアプリケーションクラス
+│       ├── domain/               # 🛡️ ドメイン層 (DDDの核 - 技術依存禁止)
+│       │   ├── model/            # 集約ルート、エンティティ、値オブジェクト
+│       │   │   └── User.java
+│       │   └── repository/       # ドメインリポジトリインターフェース (永続化の抽象化)
+│       │       └── UserRepository.java
+│       └── infrastructure/       # 🧱 インフラストラクチャ層: 技術的な実装 (永続化、外部連携)
+│           ├── persistence/      # データ永続化関連
+│           │   ├── record/       # DBスキーマにマッピングされる永続化レコード
+│           │   │   └── UserRecord.java
+│           │   ├── mapper/       # MyBatis Mapper インターフェース
+│           │   │   └── UserMapper.java
+│           │   └── repositoryimpl/ # ドメインリポジトリの実装 (UserRepositoryを実装)
+│           │       └── MyBatisUserRepository.java
+│           └── util/             # 技術的なユーティリティ
 └── resources/
     ├── application.yml
     ├── db/migration/
-    └── mybatis/                  # MyBatis Mapper XML ファイル
-        └── UserMapper.xml
+    └── com/example/project/      # Javaのパッケージ構造を反映
+        └── infrastructure/
+            └── persistence/
+                └── mapper/
+                    └── UserMapper.xml # MyBatis Mapper XML ファイル
 ```
 
-#### 📦 パッケージ命名規則
+#### 📦 各層の責務と依存関係
 
-| 層 | パッケージ名 | クラス名規則 | 責務の割り当て |
+| 層 | パッケージ | 責務と特徴 | 依存関係 |
 | :--- | :--- | :--- | :--- |
-| **ドメイン** | `model` | エンティティ名そのまま (例: `User`) | ビジネスルール、一貫性。**技術依存禁止**。 |
-| **アプリケーション** | `service` | `*Service` (例: `UserService`) | ユースケース定義、トランザクション管理。`model`と`mapper`の橋渡し。 |
-| **インフラストラクチャ** | `mapper`, `entity` | `*Mapper`, `*Record` | データ永続化の実装。`entity`はDBスキーマに近い構造。 |
-| **プレゼンテーション** | `controller`, `dto`, `form` | `*Controller`, `*Request`, `*Response` | 外部I/Fの定義。HTTPリクエスト処理。 |
+| **ドメイン** | `domain.*` | **ビジネスの心臓部**。エンティティ、集約、リポジトリのインターフェースを定義。 | **他の層に依存しない**。 |
+| **アプリケーション**| `application.*` | **ユースケース**の定義、トランザクション管理。 | `domain`層に依存。 |
+| **インフラストラクチャ**| `infrastructure.*` | **技術的な詳細の実装**。`domain.repository`を実装し、\*\*`mapper`\*\*を操作。 | `domain`層に依存（DIP）。 |
+| **プレゼンテーション**| `presentation.*` | 外部I/Fの定義。DTO/Formの定義と、`application`層の呼び出し。 | `application`層、`config`層に依存。 |
 
 -----
 
 ### 2\. コンポーネント設計と責務分割 (DDD/MyBatis特化)
 
-#### 🛡️ ドメイン層 (`model`) の厳格化
+#### 🛡️ ドメイン層 (`domain`) の厳格化
 
-  * **`model`**: **ビジネスルール**と**一貫性**をカプセル化します。setterを最小限に抑え、振る舞い（メソッド）を重視します。外部からの技術的な依存（Spring, MyBatisなど）を**一切持たない**ようにします。
-  * **ドメインリポジトリインターフェース**: `repository` パッケージがないため、ドメインが求めるデータ取得のメソッドを定義する**リポジトリインターフェース**は `model` パッケージ内、あるいは `service` パッケージ内に定義し、責務分離を保ちます。
+  * **`domain.model`**: **ビジネスルール**と**一貫性**をカプセル化します。setterを最小限に抑え、振る舞いを重視します。外部からの技術的な依存（Spring, MyBatisなど）を**一切持たない**ようにします。
+  * **`domain.repository`**: 永続化技術に依存しない、ドメインが求めるデータ取得（例: `findById(UserId id)`) メソッドのみを持つインターフェースを定義します。
 
-#### 🔗 アプリケーション層 (`service`) の責務
+#### 🔗 アプリケーション層 (`application`) の責務
 
-  * **トランザクション**を管理し、複数のドメイン操作を調整する**ユースケース**を表現します。
-  * DTO/Formを受け取り、ドメインモデル (`model`) に変換し、MyBatis Mapper (`mapper`) を介して永続化を指示します。
+  * **トランザクション**を管理し、複数の集約操作を調整する**ユースケース**を表現します。
+  * `presentation.dto`を受け取り、`domain.model`に変換し、`domain.repository`を介して操作します。
 
-#### 🧱 インフラストラクチャ層 (`mapper`, `entity`) の役割
+#### 🧱 インフラストラクチャ層 (`infrastructure`) の役割
 
-  * **`mapper`**: MyBatisの`@Mapper`アノテーションを付与し、SQLを直接操作します。
-  * **`entity`**: データベースのテーブル構造に直接マッピングされる**永続化専用のデータ構造**を配置します。
-  * **データ変換の責務**: `mapper` は `entity` を操作し、取得した `entity` を**直接** `service` 層に返却します。`service` 層がこれを `model` に変換します。
+  * **`infrastructure.persistence.record`**: データベースのテーブル構造に直接マッピングされる**永続化専用のデータ構造**を配置します。
+  * **`infrastructure.persistence.mapper`**: MyBatisの`@Mapper`アノテーションを付与し、SQLを直接操作します。`record`を操作します。
+  * **`infrastructure.persistence.repositoryimpl`**: `domain.repository`インターフェースを実装し、`mapper`を呼び出します。**`record`を`model`に変換し、`application`層に返却する責務**を持ちます。
 
 -----
 
@@ -73,14 +85,15 @@ src/main/
 
 #### 🛠️ MyBatis Mapper の使用
 
-  * MyBatis Mapper XML (`resources/mybatis`) は、**シンプルかつ明確なSQL**を記述するために使用します。動的SQLには `<if>`, `<where>` などを適切に利用します。
-  * **Spring Data JPAの使用は避けます**。MyBatisをデータアクセス層の標準とします。
+  * **XML配置**: MyBatis Mapper XML ファイルは、`resources` 内のJavaパッケージと同じパス（`resources/com/example/project/infrastructure/persistence/mapper/`）に配置します。
+  * **SQL**: シンプルかつ明確なSQLを記述するために使用します。動的SQLには `<if>`, `<where>` などを適切に利用します。
+  * **Spring Data JPAの使用は禁止します**。MyBatisをデータアクセス層の標準とします。
 
 #### 🔄 DTOとドメインモデルの変換
 
-  * **Controller** は DTO (`dto`/`form`) のみを使用します。
-  * **Service** が DTO とドメインモデル間の変換を担当します。
-  * **Validation**: **Controller層**で Bean Validation (`@Valid`など) を用いて Form/DTO のバリデーションを厳格に実施します。
+  * **Controller**: `presentation.dto` のみを使用します。
+  * **Application Service**: `presentation.dto` を `domain.model` に変換する責務を持ちます。
+  * **Validation**: `presentation.dto` および `presentation.form` に対して、Controller層で Bean Validation (`@Valid`など) を用いて厳格に実施します。
 
 -----
 
