@@ -1,11 +1,13 @@
 package jp.ne.yonem.restful.demo.controller;
 
 import jp.ne.yonem.restful.demo.form.MessageRequest;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
 // このアノテーションでRESTfulなコントローラーであることを示す
 @RestController
 @RequestMapping("/api") // 全てのエンドポイントのパスの前に /api をつける
+@Slf4j
 public class HelloController {
 
   // GETリクエストの受け取りとレスポンス送信
@@ -13,6 +15,7 @@ public class HelloController {
   @GetMapping("/hello")
   public String getHelloMessage(@RequestParam(value = "name", defaultValue = "Guest") String name) {
     // リクエストパラメータ 'name' を受け取り、文字列を返す
+    log.info("getHelloMessage");
     return "Hello, " + name + "!";
   }
 

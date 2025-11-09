@@ -9,7 +9,6 @@
     <root level="INFO">
         <appender-ref ref="JSON_STDOUT"/>
     </root>
-
     <logger name="org.springframework" level="INFO"/>
     <logger name="org.hibernate" level="WARN"/>
 </configuration>
