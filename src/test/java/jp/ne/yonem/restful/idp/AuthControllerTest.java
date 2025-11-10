@@ -6,6 +6,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jp.ne.yonem.restful.demo.controller.MessageUtil;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,7 @@ class AuthControllerTest {
   @Autowired private ObjectMapper objectMapper;
   @MockitoBean private AuthenticationManager authenticationManager;
   @MockitoBean private JwtTokenProvider tokenProvider;
+  @MockitoBean private MessageUtil messageUtil;
 
   @Test
   @DisplayName("正常系: /api/auth/signin")

@@ -27,6 +27,7 @@ class TeamMemberControllerTest {
   @Autowired private ObjectMapper objectMapper;
   @MockitoBean private GetTeamService getTeamService;
   @MockitoBean private GetTeamMemberService getTeamMemberService;
+  @MockitoBean private MessageUtil messageUtil;
 
   private static Team team;
 

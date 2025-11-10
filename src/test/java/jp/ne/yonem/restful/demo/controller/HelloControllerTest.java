@@ -12,12 +12,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest(HelloController.class)
 class HelloControllerTest {
-
   @Autowired private MockMvc mockMvc;
+  @MockitoBean private MessageUtil messageUtil;
 
   @Test
   @DisplayName("正常系: get:/api/hello?name=???")
