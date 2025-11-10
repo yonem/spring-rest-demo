@@ -1,21 +1,42 @@
-package jp.ne.yonem.restful.demo.validation;
+package jp.ne.yonem.restful.demo.controller;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import jp.ne.yonem.restful.demo.dto.MessageResponse;
+import jp.ne.yonem.restful.demo.exception.BusinessRuleViolationException;
+import jp.ne.yonem.restful.demo.validation.MessageResolverStrategy;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.MDC;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-@ControllerAdvice
+@RestControllerAdvice
 @RequiredArgsConstructor
+@Slf4j
 public class GlobalExceptionHandler {
+  private final MessageUtil messageUtil;
   private final List<MessageResolverStrategy> messageResolvers;
+
+  @ExceptionHandler(BusinessRuleViolationException.class)
+  @ResponseStatus(HttpStatus.BAD_REQUEST) // 例: HTTP 400 を返す
+  public MessageResponse handleBusinessViolation(BusinessRuleViolationException ex) {
+    log.error(
+        "Business rule violation. Key: {}, Args: {}",
+        ex.getMessageKey(),
+        Arrays.toString(ex.getMessageArgs()),
+        ex);
+
+    // 2. 外部応答の生成
+    return messageUtil.getResponse(ex.getMessageKey(), ex.getMessageArgs(), MDC.get("trace_id"));
+  }
 
   @ExceptionHandler(MethodArgumentNotValidException.class)
   public ResponseEntity<Map<String, List<MessageResponse>>> handleValidationExceptions(
