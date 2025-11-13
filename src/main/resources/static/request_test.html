@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>Spring Boot REST Demo</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .container { max-width: 800px; margin: auto; }
+        h1, h2 { color: #333; }
+        div { margin-bottom: 15px; padding: 10px; border: 1px solid #eee; border-radius: 5px; background-color: #f9f9f9; }
+        button, input[type="text"] { padding: 8px 12px; margin-right: 5px; border-radius: 4px; border: 1px solid #ccc; }
+        button { background-color: #007bff; color: white; cursor: pointer; border: none; }
+        button:hover { background-color: #0056b3; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Spring Boot REST Demo</h1>
+    <h2>GETリクエストの送信と受け取り</h2>
+    <div>
+        <label for="nameInput">名前を入力してください:</label>
+        <input type="text" id="nameInput" value="クライアント">
+        <button onclick="sendGetRequest()">メッセージ取得</button>
+        <p>サーバーからの応答: <span id="getMessageResult"></span></p>
+    </div>
+
+    <h2>POSTリクエストの送信と受け取り</h2>
+    <div>
+        <label for="postContent">送信するメッセージ:</label>
+        <input type="text" id="postContent" value="これはテストメッセージです">
+        <button onclick="sendPostRequest()">メッセージ送信</button>
+        <p>サーバーからの応答: <span id="postMessageResult"></span></p>
+    </div>
+</div>
+
+<script>
+    // GETリクエストを送信する関数
+    async function sendGetRequest() {
+        const name = document.getElementById('nameInput').value;
+        const url = `/api/hello?name=${encodeURIComponent(name)}`; // クエリパラメータとして名前を送信
+
+        try {
+            // fetch APIを使ってGETリクエストを送信
+            const response = await fetch(url);
+            // レスポンスがOK（ステータスコード200-299）かチェック
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            // レスポンスボディをテキストとして取得
+            const data = await response.text();
+            // 画面に結果を表示
+            document.getElementById('getMessageResult').textContent = data;
+        } catch (error) {
+            console.error('GETリクエスト送信中にエラーが発生しました:', error);
+            document.getElementById('getMessageResult').textContent = 'エラーが発生しました: ' + error.message;
+        }
+    }
+
+    // POSTリクエストを送信する関数
+    async function sendPostRequest() {
+        const content = document.getElementById('postContent').value;
+        const url = `/api/message`;
+
+        try {
+            // fetch APIを使ってPOSTリクエストを送信
+            const response = await fetch(url, {
+                method: 'POST', // POSTメソッドを指定
+                headers: {
+                    'Content-Type': 'application/json' // リクエストボディがJSONであることを示すヘッダー
+                },
+                // リクエストボディをJSON文字列に変換して送信
+                body: JSON.stringify({ content: content })
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            // レスポンスボディをテキストとして取得
+            const data = await response.text();
+            // 画面に結果を表示
+            document.getElementById('postMessageResult').textContent = data;
+        } catch (error) {
+            console.error('POSTリクエスト送信中にエラーが発生しました:', error);
+            document.getElementById('postMessageResult').textContent = 'エラーが発生しました: ' + error.message;
+        }
+    }
+</script>
+</body>
+</html>
