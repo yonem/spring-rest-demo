@@ -1,0 +1,93 @@
+body {
+    font-family: sans-serif;
+    background-color: #f4f7f6;
+    color: #333;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+}
+
+.container {
+    background-color: #ffffff;
+    padding: 30px 40px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    width: 90%;
+    max-width: 600px;
+}
+
+h1 {
+    color: #007bff;
+    text-align: center;
+    border-bottom: 2px solid #e0e0e0;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+
+.status-box {
+    text-align: center;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+#health-status {
+    font-size: 2em;
+    font-weight: bold;
+    margin: 10px 0;
+}
+
+/* ステータス別の色設定 */
+.loading {
+    color: #ffc107; /* 黄色 */
+}
+.up {
+    color: #28a745; /* 緑色 */
+    background-color: #e6ffec;
+    padding: 5px;
+    border-radius: 4px;
+}
+.down {
+    color: #dc3545; /* 赤色 */
+    background-color: #ffe6e8;
+    padding: 5px;
+    border-radius: 4px;
+}
+.error {
+    color: #6c757d; /* 灰色 */
+}
+
+button {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 1.1em;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+.details {
+    margin-top: 30px;
+}
+
+#response-details {
+    background-color: #333;
+    color: #f8f8f8;
+    padding: 15px;
+    border-radius: 4px;
+    overflow-x: auto;
+    white-space: pre-wrap;
+    word-break: break-all;
+    font-size: 0.9em;
+}
