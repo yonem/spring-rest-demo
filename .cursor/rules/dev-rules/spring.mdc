@@ -21,6 +21,8 @@ src/main/
 │   └── com/example/project/
 │       ├── config/               # ⚙️ 設定層: Spring Boot, Security, MyBatisなどの技術設定
 │       │   └── AppConfig.java
+│       │   └── aop/              # AOP
+│       │       └── PerformanceAspect.java
 │       ├── presentation/         # 💻 プレゼンテーション層 (Web/API)
 │       │   ├── controller/       # REST API エンドポイント
 │       │   │   └── UserController.java
