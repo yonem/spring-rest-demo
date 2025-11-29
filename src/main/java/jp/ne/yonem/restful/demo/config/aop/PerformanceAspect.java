@@ -1,4 +1,4 @@
-package jp.ne.yonem.restful.demo.aop;
+package jp.ne.yonem.restful.demo.config.aop;
 
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
