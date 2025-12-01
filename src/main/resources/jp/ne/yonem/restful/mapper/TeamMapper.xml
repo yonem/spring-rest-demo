@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?><!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="jp.ne.yonem.restful.mapper.TeamMapper">
+
+    <resultMap id="memberResultMap" type="jp.ne.yonem.restful.entity.Member">
+        <id property="id" column="member_id"/>
+        <result property="teamId" column="member_team_id"/>
+        <result property="name" column="member_name"/>
+    </resultMap>
+
+    <resultMap id="teamResultMap" type="jp.ne.yonem.restful.entity.Team">
+        <id property="id" column="team_id"/>
+        <result property="name" column="team_name"/>
+        <collection property="members" ofType="jp.ne.yonem.restful.entity.Member"
+                    resultMap="memberResultMap"></collection>
+    </resultMap>
+
+    <select id="findAllTeamsWithMembers" resultMap="teamResultMap">
+        SELECT
+            t.id AS team_id
+            , t.name AS team_name
+            , m.id AS member_id
+            , m.team_id AS member_team_id
+            , m.name AS member_name
+        FROM
+            team t
+            LEFT JOIN member m
+                ON t.id = m.team_id
+        ORDER BY
+            t.id
+            , m.id
+    </select>
+
+    <select id="findById" resultMap="teamResultMap">
+        SELECT
+            t.id AS team_id
+            , t.name AS team_name
+            , m.id AS member_id
+            , m.team_id AS member_team_id
+            , m.name AS member_name
+        FROM
+            team t
+            LEFT JOIN member m
+                ON t.id = m.team_id
+        WHERE t.id = #{id}
+    </select>
+    <insert id="insert" parameterType="jp.ne.yonem.restful.entity.Team" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO team (name) VALUES (#{name})
+    </insert>
+</mapper>
