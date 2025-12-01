@@ -1,7 +1,7 @@
 package jp.ne.yonem.restful.auth;
 
 import java.util.List;
-import jp.ne.yonem.restful.demo.mapper.UserMapper;
+import jp.ne.yonem.restful.mapper.UserMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
