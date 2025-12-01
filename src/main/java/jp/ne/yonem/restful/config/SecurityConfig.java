@@ -1,5 +1,6 @@
 package jp.ne.yonem.restful.config;
 
+import java.util.Arrays;
 import jp.ne.yonem.restful.auth.LoginUserDetailsService;
 import jp.ne.yonem.restful.idp.JwtAuthenticationFilter;
 import jp.ne.yonem.restful.idp.JwtTokenProvider;
@@ -22,6 +23,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 @Configuration
 @EnableMethodSecurity
@@ -31,7 +35,7 @@ public class SecurityConfig {
   private final JwtTokenProvider jwtTokenProvider;
 
   private static final String[] PERMIT_WHITELIST = {
-    "/api/hello", "/api/auth/**", "/api/kafka", "/api/free/**", "/api/download/**"
+    "/api/greeting/**", "/api/auth/**", "/api/kafka", "/api/free/**", "/api/download/**"
   };
 
   private static final String[] SWAGGER_WHITELIST = {
@@ -40,6 +44,9 @@ public class SecurityConfig {
 
   @Value("${encryption.password}")
   private String password;
+
+  @Value("${api.cors.allowed-origins:}")
+  private String allowedOriginsConfig;
 
   /**
    * パスワードエンコーダー
@@ -73,6 +80,7 @@ public class SecurityConfig {
   @Order(1)
   public SecurityFilterChain apiFilterChain(HttpSecurity http) throws Exception {
     http.securityMatcher("/api/**")
+        .cors(cors -> cors.configurationSource(corsConfigurationSource()))
         .csrf(AbstractHttpConfigurer::disable)
         .sessionManagement(
             session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -101,5 +109,37 @@ public class SecurityConfig {
         .formLogin(AbstractAuthenticationFilterConfigurer::permitAll)
         .logout(LogoutConfigurer::permitAll);
     return http.build();
+  }
+
+  /** CORS設定の本体を定義するメソッド */
+  @Bean
+  public CorsConfigurationSource corsConfigurationSource() {
+    var configuration = new CorsConfiguration();
+
+    // 読み込んだカンマ区切りの文字列をリストに変換
+    var origins = Arrays.asList(allowedOriginsConfig.split(","));
+
+    // ★ 許可オリジンリストをセット (マルチオリジン対応)
+    configuration.setAllowedOrigins(origins);
+
+    // ★ 許可メソッドをセット (POST/PUT/DELETE/OPTIONSなど、必要なもの全て)
+    configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+
+    // ★ 許可ヘッダーをセット (カスタムヘッダーやContent-Typeなど)
+    configuration.setAllowedHeaders(
+        Arrays.asList("Content-Type", "Authorization", "X-Custom-Header"));
+
+    // ★ 認証情報 (クッキー、Authorizationヘッダーなど) の送信を許可
+    //   ※ allowedOrigins にワイルドカード(*)は使えなくなります
+    configuration.setAllowCredentials(true);
+
+    // ★ Preflightリクエストのキャッシュ時間を設定 (負荷軽減のため推奨)
+    //   例: 1時間はOPTIONSリクエストを再送しない
+    configuration.setMaxAge(3600L);
+
+    // 全てのパス ("/**") に対して設定を適用
+    var source = new UrlBasedCorsConfigurationSource();
+    source.registerCorsConfiguration("/**", configuration);
+    return source;
   }
 }

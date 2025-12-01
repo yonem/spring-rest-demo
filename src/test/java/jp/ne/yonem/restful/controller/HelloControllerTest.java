@@ -21,12 +21,12 @@ class HelloControllerTest {
   @MockitoBean private MessageUtil messageUtil;
 
   @Test
-  @DisplayName("正常系: get:/api/hello?name=???")
+  @DisplayName("正常系: get:/api/greeting/hello?name=???")
   @WithMockUser(roles = "USER")
   void test1() throws Exception {
     var res =
         mockMvc
-            .perform(get("/api/hello?name=user").contentType(MediaType.APPLICATION_JSON))
+            .perform(get("/api/greeting/hello?name=user").contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
             .andReturn()
             .getResponse();
@@ -34,12 +34,12 @@ class HelloControllerTest {
   }
 
   @Test
-  @DisplayName("異常系: get:/api/hello?name=（パラメータなし）")
+  @DisplayName("異常系: get:/api/greeting/hello?name=（パラメータなし）")
   @WithMockUser(roles = "USER")
   void test2() throws Exception {
     var res =
         mockMvc
-            .perform(get("/api/hello").contentType(MediaType.APPLICATION_JSON))
+            .perform(get("/api/greeting/hello").contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
             .andReturn()
             .getResponse();
@@ -47,14 +47,14 @@ class HelloControllerTest {
   }
 
   @Test
-  @DisplayName("正常系: post:/api/message（JSONボディ）")
+  @DisplayName("正常系: post:/api/greeting/message（JSONボディ）")
   @WithMockUser(roles = "USER")
   void test3() throws Exception {
     var json = "{\"content\":\"テストメッセージ\"}";
     var res =
         mockMvc
             .perform(
-                post("/api/message")
+                post("/api/greeting/message")
                     .with(csrf())
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(json))

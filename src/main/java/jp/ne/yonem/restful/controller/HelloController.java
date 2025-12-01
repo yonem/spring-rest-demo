@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.*;
 
 // このアノテーションでRESTfulなコントローラーであることを示す
 @RestController
-@RequestMapping("/api") // 全てのエンドポイントのパスの前に /api をつける
+@RequestMapping("/api/greeting") // 全てのエンドポイントのパスの前に /api をつける
 @Slf4j
 public class HelloController {
 
