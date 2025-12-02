@@ -1,6 +1,6 @@
-package jp.ne.yonem.restful.controller;
+package jp.ne.yonem.restful.presentation.controller;
 
-import jp.ne.yonem.restful.dto.MessageResponse;
+import jp.ne.yonem.restful.presentation.dto.MessageResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;

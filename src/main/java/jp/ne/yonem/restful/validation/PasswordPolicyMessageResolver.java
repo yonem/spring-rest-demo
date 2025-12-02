@@ -2,9 +2,9 @@ package jp.ne.yonem.restful.validation;
 
 import java.util.List;
 import java.util.Objects;
-import jp.ne.yonem.restful.controller.MessageUtil;
 import jp.ne.yonem.restful.form.PasswordForm;
 import jp.ne.yonem.restful.mapper.PasswordPolicyMapper;
+import jp.ne.yonem.restful.presentation.controller.MessageUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.FieldError;

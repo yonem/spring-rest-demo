@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.util.List;
 import java.util.stream.Collectors;
-import jp.ne.yonem.restful.dto.DownloadFileResponse;
+import jp.ne.yonem.restful.presentation.dto.DownloadFileResponse;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;

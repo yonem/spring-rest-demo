@@ -1,11 +1,11 @@
-package jp.ne.yonem.restful.controller;
+package jp.ne.yonem.restful.presentation.controller;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import jp.ne.yonem.restful.dto.MessageResponse;
 import jp.ne.yonem.restful.exception.BusinessRuleViolationException;
+import jp.ne.yonem.restful.presentation.dto.MessageResponse;
 import jp.ne.yonem.restful.validation.MessageResolverStrategy;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
