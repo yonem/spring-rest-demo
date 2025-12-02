@@ -1,4 +1,4 @@
-package jp.ne.yonem.restful.controller;
+package jp.ne.yonem.restful.presentation.controller;
 
 import static org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
 

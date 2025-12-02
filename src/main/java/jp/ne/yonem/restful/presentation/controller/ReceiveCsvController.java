@@ -1,8 +1,8 @@
-package jp.ne.yonem.restful.controller;
+package jp.ne.yonem.restful.presentation.controller;
 
 import static org.springframework.http.MediaType.*;
 
-import jp.ne.yonem.restful.dto.CsvResponse;
+import jp.ne.yonem.restful.presentation.dto.CsvResponse;
 import jp.ne.yonem.restful.service.ReceiveCsvService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

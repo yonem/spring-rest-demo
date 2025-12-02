@@ -1,4 +1,4 @@
-package jp.ne.yonem.restful.controller;
+package jp.ne.yonem.restful.presentation.controller;
 
 import java.io.IOException;
 import java.util.Arrays;

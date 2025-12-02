@@ -1,4 +1,4 @@
-package jp.ne.yonem.restful.dto;
+package jp.ne.yonem.restful.presentation.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

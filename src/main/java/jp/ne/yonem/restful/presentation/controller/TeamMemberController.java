@@ -1,4 +1,4 @@
-package jp.ne.yonem.restful.controller;
+package jp.ne.yonem.restful.presentation.controller;
 
 import java.util.List;
 import jp.ne.yonem.restful.entity.Team;

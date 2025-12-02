@@ -1,4 +1,4 @@
-package jp.ne.yonem.restful.controller;
+package jp.ne.yonem.restful.presentation.controller;
 
 import jp.ne.yonem.restful.form.EmailForm;
 import jp.ne.yonem.restful.service.EmailService;
