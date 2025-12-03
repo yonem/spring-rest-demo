@@ -2,10 +2,10 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="jp.ne.yonem.restful.mapper.UserMapper">
+<mapper namespace="jp.ne.yonem.restful.infrastructure.persistence.mapper.UserMapper">
 
     <!-- Userオブジェクトとテーブルカラムのマッピング結果セット -->
-    <resultMap id="userResultMap" type="jp.ne.yonem.restful.entity.User">
+    <resultMap id="userResultMap" type="jp.ne.yonem.restful.infrastructure.persistence.record.User">
         <id property="id" column="id"/>
         <result property="userName" column="username"/>
         <result property="email" column="email"/>
@@ -15,7 +15,8 @@
     </resultMap>
 
     <!-- 新しいユーザーを挿入します。 -->
-    <insert id="insert" parameterType="jp.ne.yonem.restful.entity.User" useGeneratedKeys="true"
+    <insert id="insert" parameterType="jp.ne.yonem.restful.infrastructure.persistence.record.User"
+            useGeneratedKeys="true"
             keyProperty="id">
         INSERT INTO users (username, email, password, roles)
         VALUES (#{userName}, #{email}, #{password}, #{roles})
@@ -42,7 +43,7 @@
     </select>
 
     <!-- ユーザー情報を更新します。 -->
-    <update id="updateUser" parameterType="jp.ne.yonem.restful.entity.User">
+    <update id="updateUser" parameterType="jp.ne.yonem.restful.infrastructure.persistence.record.User">
         UPDATE users
         SET
         username = #{userName},

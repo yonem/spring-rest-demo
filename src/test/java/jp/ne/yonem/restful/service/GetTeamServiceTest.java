@@ -5,8 +5,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 import java.util.List;
-import jp.ne.yonem.restful.entity.Team;
-import jp.ne.yonem.restful.mapper.TeamMapper;
+import jp.ne.yonem.restful.infrastructure.persistence.mapper.TeamMapper;
+import jp.ne.yonem.restful.infrastructure.persistence.record.Team;
 import org.apache.ibatis.javassist.NotFoundException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

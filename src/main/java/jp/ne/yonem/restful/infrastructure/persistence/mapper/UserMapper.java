@@ -1,7 +1,7 @@
-package jp.ne.yonem.restful.mapper;
+package jp.ne.yonem.restful.infrastructure.persistence.mapper;
 
 import java.util.List;
-import jp.ne.yonem.restful.entity.User;
+import jp.ne.yonem.restful.infrastructure.persistence.record.User;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 

@@ -3,7 +3,8 @@ package jp.ne.yonem.restful.mapper;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
-import jp.ne.yonem.restful.entity.Team;
+import jp.ne.yonem.restful.infrastructure.persistence.mapper.TeamMapper;
+import jp.ne.yonem.restful.infrastructure.persistence.record.Team;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mybatis.spring.boot.test.autoconfigure.MybatisTest;

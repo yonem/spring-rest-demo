@@ -2,7 +2,8 @@ package jp.ne.yonem.restful.mapper;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import jp.ne.yonem.restful.entity.Member;
+import jp.ne.yonem.restful.infrastructure.persistence.mapper.MemberMapper;
+import jp.ne.yonem.restful.infrastructure.persistence.record.Member;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mybatis.spring.boot.test.autoconfigure.MybatisTest;

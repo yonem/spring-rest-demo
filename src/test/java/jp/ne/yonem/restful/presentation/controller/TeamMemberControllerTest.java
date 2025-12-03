@@ -6,8 +6,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
-import jp.ne.yonem.restful.entity.Member;
-import jp.ne.yonem.restful.entity.Team;
+import jp.ne.yonem.restful.infrastructure.persistence.record.Member;
+import jp.ne.yonem.restful.infrastructure.persistence.record.Team;
 import jp.ne.yonem.restful.service.GetTeamMemberService;
 import jp.ne.yonem.restful.service.GetTeamService;
 import org.apache.ibatis.javassist.NotFoundException;

@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8" ?><!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="jp.ne.yonem.restful.mapper.TeamMapper">
+<mapper namespace="jp.ne.yonem.restful.infrastructure.persistence.mapper.TeamMapper">
 
-    <resultMap id="memberResultMap" type="jp.ne.yonem.restful.entity.Member">
+    <resultMap id="memberResultMap" type="jp.ne.yonem.restful.infrastructure.persistence.record.Member">
         <id property="id" column="member_id"/>
         <result property="teamId" column="member_team_id"/>
         <result property="name" column="member_name"/>
     </resultMap>
 
-    <resultMap id="teamResultMap" type="jp.ne.yonem.restful.entity.Team">
+    <resultMap id="teamResultMap" type="jp.ne.yonem.restful.infrastructure.persistence.record.Team">
         <id property="id" column="team_id"/>
         <result property="name" column="team_name"/>
-        <collection property="members" ofType="jp.ne.yonem.restful.entity.Member"
+        <collection property="members" ofType="jp.ne.yonem.restful.infrastructure.persistence.record.Member"
                     resultMap="memberResultMap"></collection>
     </resultMap>
 
@@ -44,7 +44,8 @@
                 ON t.id = m.team_id
         WHERE t.id = #{id}
     </select>
-    <insert id="insert" parameterType="jp.ne.yonem.restful.entity.Team" useGeneratedKeys="true" keyProperty="id">
+    <insert id="insert" parameterType="jp.ne.yonem.restful.infrastructure.persistence.record.Team"
+            useGeneratedKeys="true" keyProperty="id">
         INSERT INTO team (name) VALUES (#{name})
     </insert>
 </mapper>
