@@ -1,7 +1,7 @@
-package jp.ne.yonem.restful.mapper;
+package jp.ne.yonem.restful.infrastructure.persistence.mapper;
 
 import java.util.List;
-import jp.ne.yonem.restful.entity.Team;
+import jp.ne.yonem.restful.infrastructure.persistence.record.Team;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 

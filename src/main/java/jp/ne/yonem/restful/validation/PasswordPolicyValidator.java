@@ -4,7 +4,7 @@ import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import java.util.Objects;
 import jp.ne.yonem.restful.form.PasswordForm;
-import jp.ne.yonem.restful.mapper.PasswordPolicyMapper;
+import jp.ne.yonem.restful.infrastructure.persistence.mapper.PasswordPolicyMapper;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor

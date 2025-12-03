@@ -1,8 +1,8 @@
 package jp.ne.yonem.restful.service;
 
 import java.util.Objects;
-import jp.ne.yonem.restful.entity.Team;
-import jp.ne.yonem.restful.mapper.TeamMapper;
+import jp.ne.yonem.restful.infrastructure.persistence.mapper.TeamMapper;
+import jp.ne.yonem.restful.infrastructure.persistence.record.Team;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.javassist.NotFoundException;

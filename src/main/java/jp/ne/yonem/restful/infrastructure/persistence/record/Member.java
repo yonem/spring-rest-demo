@@ -1,4 +1,4 @@
-package jp.ne.yonem.restful.entity;
+package jp.ne.yonem.restful.infrastructure.persistence.record;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

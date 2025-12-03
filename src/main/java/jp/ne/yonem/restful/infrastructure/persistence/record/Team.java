@@ -1,4 +1,4 @@
-package jp.ne.yonem.restful.entity;
+package jp.ne.yonem.restful.infrastructure.persistence.record;
 
 import java.util.List;
 import lombok.AllArgsConstructor;

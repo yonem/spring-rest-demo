@@ -8,9 +8,9 @@ import static org.mockito.Mockito.when;
 
 import jakarta.validation.ConstraintValidatorContext;
 import jakarta.validation.ConstraintValidatorContext.ConstraintViolationBuilder.NodeBuilderCustomizableContext;
-import jp.ne.yonem.restful.entity.PasswordPolicy;
 import jp.ne.yonem.restful.form.PasswordForm;
-import jp.ne.yonem.restful.mapper.PasswordPolicyMapper;
+import jp.ne.yonem.restful.infrastructure.persistence.mapper.PasswordPolicyMapper;
+import jp.ne.yonem.restful.infrastructure.persistence.record.PasswordPolicy;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

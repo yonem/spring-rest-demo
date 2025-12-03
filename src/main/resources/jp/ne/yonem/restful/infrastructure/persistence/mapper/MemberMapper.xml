@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?><!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="jp.ne.yonem.restful.mapper.MemberMapper">
-    <insert id="insert" parameterType="jp.ne.yonem.restful.entity.Member">
+<mapper namespace="jp.ne.yonem.restful.infrastructure.persistence.mapper.MemberMapper">
+    <insert id="insert" parameterType="jp.ne.yonem.restful.infrastructure.persistence.record.Member">
         INSERT INTO member (team_id, name) VALUES
         (#{teamId},#{name})
     </insert>
