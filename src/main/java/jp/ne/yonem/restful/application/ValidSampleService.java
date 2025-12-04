@@ -1,4 +1,4 @@
-package jp.ne.yonem.restful.service;
+package jp.ne.yonem.restful.application;
 
 import jakarta.validation.Validator;
 import jp.ne.yonem.restful.form.ValidSampleForm;

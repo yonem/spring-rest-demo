@@ -1,4 +1,4 @@
-package jp.ne.yonem.restful.service;
+package jp.ne.yonem.restful.application;
 
 import jp.ne.yonem.restful.model.Post;
 import lombok.RequiredArgsConstructor;

@@ -1,7 +1,7 @@
 package jp.ne.yonem.restful.presentation.controller;
 
 import java.io.IOException;
-import jp.ne.yonem.restful.service.UserCsvDownloadService;
+import jp.ne.yonem.restful.application.UserCsvDownloadService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;

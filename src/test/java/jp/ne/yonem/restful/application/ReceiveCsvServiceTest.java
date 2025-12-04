@@ -1,4 +1,4 @@
-package jp.ne.yonem.restful.service;
+package jp.ne.yonem.restful.application;
 
 import static java.nio.charset.StandardCharsets.*;
 import static org.junit.jupiter.api.Assertions.*;

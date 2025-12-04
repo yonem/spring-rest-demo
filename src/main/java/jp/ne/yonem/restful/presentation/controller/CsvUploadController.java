@@ -4,8 +4,8 @@ import static org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
 
 import jakarta.validation.Validator;
 import java.io.IOException;
+import jp.ne.yonem.restful.application.UserCsvUploadService;
 import jp.ne.yonem.restful.form.CsvUploadForm;
-import jp.ne.yonem.restful.service.UserCsvUploadService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

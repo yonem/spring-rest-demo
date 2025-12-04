@@ -2,7 +2,7 @@ package jp.ne.yonem.restful.presentation.controller;
 
 import java.io.IOException;
 import java.util.Arrays;
-import jp.ne.yonem.restful.service.ZipCreationService;
+import jp.ne.yonem.restful.application.ZipCreationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;

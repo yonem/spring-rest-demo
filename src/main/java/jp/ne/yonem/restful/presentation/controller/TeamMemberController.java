@@ -1,9 +1,9 @@
 package jp.ne.yonem.restful.presentation.controller;
 
 import java.util.List;
+import jp.ne.yonem.restful.application.GetTeamMemberService;
+import jp.ne.yonem.restful.application.GetTeamService;
 import jp.ne.yonem.restful.infrastructure.persistence.record.Team;
-import jp.ne.yonem.restful.service.GetTeamMemberService;
-import jp.ne.yonem.restful.service.GetTeamService;
 import lombok.RequiredArgsConstructor;
 import org.apache.ibatis.javassist.NotFoundException;
 import org.springframework.http.HttpStatus;
