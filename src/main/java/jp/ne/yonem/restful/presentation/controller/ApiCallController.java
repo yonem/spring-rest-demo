@@ -1,8 +1,8 @@
 package jp.ne.yonem.restful.presentation.controller;
 
+import jp.ne.yonem.restful.application.GetPostByIdApiCallService;
+import jp.ne.yonem.restful.application.GetPostsApiCallService;
 import jp.ne.yonem.restful.model.Post;
-import jp.ne.yonem.restful.service.GetPostByIdApiCallService;
-import jp.ne.yonem.restful.service.GetPostsApiCallService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;

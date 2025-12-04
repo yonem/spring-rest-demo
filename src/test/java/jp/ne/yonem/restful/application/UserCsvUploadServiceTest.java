@@ -1,4 +1,4 @@
-package jp.ne.yonem.restful.service;
+package jp.ne.yonem.restful.application;
 
 import static com.google.zxing.common.StringUtils.SHIFT_JIS;
 import static org.junit.jupiter.api.Assertions.assertEquals;

@@ -1,4 +1,4 @@
-package jp.ne.yonem.restful.service;
+package jp.ne.yonem.restful.application;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;

@@ -1,4 +1,4 @@
-package jp.ne.yonem.restful.service;
+package jp.ne.yonem.restful.application;
 
 import java.util.List;
 import jp.ne.yonem.restful.infrastructure.persistence.mapper.TeamMapper;

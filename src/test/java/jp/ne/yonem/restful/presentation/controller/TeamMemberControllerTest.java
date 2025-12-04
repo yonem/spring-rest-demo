@@ -6,10 +6,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
+import jp.ne.yonem.restful.application.GetTeamMemberService;
+import jp.ne.yonem.restful.application.GetTeamService;
 import jp.ne.yonem.restful.infrastructure.persistence.record.Member;
 import jp.ne.yonem.restful.infrastructure.persistence.record.Team;
-import jp.ne.yonem.restful.service.GetTeamMemberService;
-import jp.ne.yonem.restful.service.GetTeamService;
 import org.apache.ibatis.javassist.NotFoundException;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
