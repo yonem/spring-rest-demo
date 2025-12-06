@@ -1,6 +1,6 @@
 package jp.ne.yonem.restful.presentation.controller;
 
-import jp.ne.yonem.restful.form.MessageRequest;
+import jp.ne.yonem.restful.presentation.dto.MessageRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 

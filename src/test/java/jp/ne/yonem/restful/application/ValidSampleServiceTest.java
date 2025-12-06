@@ -8,7 +8,7 @@ import static org.mockito.Mockito.when;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
 import java.util.HashSet;
-import jp.ne.yonem.restful.form.ValidSampleForm;
+import jp.ne.yonem.restful.presentation.dto.ValidSampleForm;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
