@@ -1,7 +1,7 @@
 package jp.ne.yonem.restful.application;
 
 import jakarta.validation.Validator;
-import jp.ne.yonem.restful.form.ValidSampleForm;
+import jp.ne.yonem.restful.presentation.dto.ValidSampleForm;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

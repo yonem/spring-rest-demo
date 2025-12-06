@@ -3,7 +3,7 @@ package jp.ne.yonem.restful.application;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import java.io.InputStreamReader;
-import jp.ne.yonem.restful.form.EmailForm;
+import jp.ne.yonem.restful.presentation.dto.EmailForm;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;

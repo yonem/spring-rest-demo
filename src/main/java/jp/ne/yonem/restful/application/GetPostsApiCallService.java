@@ -1,6 +1,6 @@
 package jp.ne.yonem.restful.application;
 
-import jp.ne.yonem.restful.model.Post;
+import jp.ne.yonem.restful.domain.model.Post;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;

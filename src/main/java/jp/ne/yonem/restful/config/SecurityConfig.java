@@ -1,9 +1,9 @@
 package jp.ne.yonem.restful.config;
 
 import java.util.Arrays;
-import jp.ne.yonem.restful.auth.LoginUserDetailsService;
-import jp.ne.yonem.restful.idp.JwtAuthenticationFilter;
-import jp.ne.yonem.restful.idp.JwtTokenProvider;
+import jp.ne.yonem.restful.infrastructure.auth.LoginUserDetailsService;
+import jp.ne.yonem.restful.infrastructure.idp.JwtAuthenticationFilter;
+import jp.ne.yonem.restful.infrastructure.idp.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;

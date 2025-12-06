@@ -2,7 +2,7 @@ package jp.ne.yonem.restful.presentation.controller;
 
 import static org.springframework.http.MediaType.*;
 
-import jp.ne.yonem.restful.application.ReceiveCsvService;
+import jp.ne.yonem.restful.infrastructure.ReceiveCsvService;
 import jp.ne.yonem.restful.presentation.dto.CsvResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
