@@ -1,6 +1,6 @@
 package jp.ne.yonem.restful.presentation.controller;
 
-import jp.ne.yonem.restful.presentation.dto.MessageRequest;
+import jp.ne.yonem.restful.presentation.dto.MessageForm;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,9 +23,9 @@ public class HelloController {
   // リクエストボディにJSONデータを受け取る例
   // 例: POST /api/message, Body: {"content": "Hello from client!"}
   @PostMapping("/message")
-  public String postMessage(@RequestBody MessageRequest messageRequest) {
+  public String postMessage(@RequestBody MessageForm messageForm) {
     // @RequestBody でリクエストボディのJSONをJavaオブジェクトにマッピング
     // MessageRequest オブジェクトの content フィールドを取得
-    return "Received your message: '" + messageRequest.getContent() + "'. Server says hi!";
+    return "Received your message: '" + messageForm.getContent() + "'. Server says hi!";
   }
 }

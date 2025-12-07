@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserRequest {
+public class UserForm {
   @NotBlank(message = "ユーザー名は必須です")
   private String username;
 
