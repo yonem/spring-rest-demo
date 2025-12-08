@@ -14,8 +14,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 
-public class ZipCreationServiceTest {
-  ZipCreationService sut = new ZipCreationService();
+public class ZipCreationProviderTest {
+  ZipCreationProvider sut = new ZipCreationProvider();
 
   private Path tempDir;
   private Path dummyFile1;
@@ -43,7 +43,7 @@ public class ZipCreationServiceTest {
   @Test
   @DisplayName("正常系 - パスワードあり")
   void test01() throws IOException {
-    var result = sut.execute(filePaths, password);
+    var result = sut.download(filePaths, password);
     assertNotNull(result);
     assertNotNull(result.getFile());
     assertTrue(10 < result.getFile().length);
@@ -62,7 +62,7 @@ public class ZipCreationServiceTest {
   @Test
   @DisplayName("正常系 - パスワードなし: 空文字")
   void test02() throws IOException {
-    var result = sut.execute(filePaths, "");
+    var result = sut.download(filePaths, "");
     assertNotNull(result);
     assertNotNull(result.getFile());
     assertTrue(10 < result.getFile().length);
@@ -81,7 +81,7 @@ public class ZipCreationServiceTest {
   @Test
   @DisplayName("正常系 - パスワードなし: NULL")
   void test03() throws IOException {
-    var result = sut.execute(filePaths);
+    var result = sut.download(filePaths);
     assertNotNull(result);
     assertNotNull(result.getFile());
     assertTrue(10 < result.getFile().length);
@@ -105,6 +105,6 @@ public class ZipCreationServiceTest {
             System.getProperty("java.io.tmpdir"),
             "non_existent_" + System.currentTimeMillis() + ".txt");
     var invalidFilePaths = List.of(nonExistentPath.toString());
-    assertThrows(IOException.class, () -> sut.execute(invalidFilePaths, password));
+    assertThrows(IOException.class, () -> sut.download(invalidFilePaths, password));
   }
 }

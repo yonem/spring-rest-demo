@@ -21,7 +21,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @Slf4j
-public class ZipCreationService {
+public class ZipCreationProvider {
   private static final DateTimeFormatter DATE_TIME_FORMATTER =
       DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss");
   private static final String ZIP_BASE_NAME = "archive_";
@@ -34,8 +34,8 @@ public class ZipCreationService {
    * @return ダウンロードに必要な情報を含む DownloadFileResponse
    * @throws IOException ZIP作成またはファイル操作中にエラーが発生した場合
    */
-  public DownloadFileResponse execute(List<String> filePaths) throws IOException {
-    return execute(filePaths, null);
+  public DownloadFileResponse download(List<String> filePaths) throws IOException {
+    return download(filePaths, null);
   }
 
   /**
@@ -46,7 +46,7 @@ public class ZipCreationService {
    * @return ダウンロードに必要な情報を含む DownloadFileResponse
    * @throws IOException ZIP作成またはファイル操作中にエラーが発生した場合
    */
-  public DownloadFileResponse execute(List<String> filePaths, String password) throws IOException {
+  public DownloadFileResponse download(List<String> filePaths, String password) throws IOException {
     var timestamp = LocalDateTime.now().format(DATE_TIME_FORMATTER);
     var zipFileName = "%s%s%s".formatted(ZIP_BASE_NAME, timestamp, ZIP_EXTENSION);
     var targetFiles = filePaths.stream().map(File::new).collect(Collectors.toList());

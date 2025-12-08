@@ -1,7 +1,7 @@
 package jp.ne.yonem.restful.presentation.controller;
 
 import java.io.IOException;
-import jp.ne.yonem.restful.infrastructure.UserCsvDownloadService;
+import jp.ne.yonem.restful.infrastructure.CsvProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,11 +12,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 public class CsvDownloadController {
-  private final UserCsvDownloadService userService;
+  private final CsvProvider userService;
 
   @GetMapping("/download/users.csv")
   public ResponseEntity<?> downloadCsv() throws IOException {
-    var csv = userService.execute();
+    var csv = userService.download();
     return ResponseEntity.ok().headers(csv.getHeader()).body(csv.getFile());
   }
 }

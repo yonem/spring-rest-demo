@@ -8,7 +8,7 @@ import reactor.core.publisher.Mono;
 
 @Service
 @RequiredArgsConstructor
-public class GetPostByIdApiCallService {
+public class ApiCallProvider {
 
   private static final String API_URL = "https://jsonplaceholder.typicode.com"; // ベースURLを設定
 
@@ -20,7 +20,7 @@ public class GetPostByIdApiCallService {
    * @param id 投稿ID
    * @return 投稿オブジェクトのMono (非同期ストリーム、単一の要素)
    */
-  public Mono<Post> execute(Integer id) {
+  public Mono<Post> findPostBy(Integer id) {
     return webClient
         .get()
         .uri(API_URL + "/posts/{id}", id) // パス変数を含むURI
