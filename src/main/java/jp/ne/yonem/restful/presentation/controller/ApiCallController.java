@@ -2,7 +2,7 @@ package jp.ne.yonem.restful.presentation.controller;
 
 import jp.ne.yonem.restful.application.GetPostsApiCallService;
 import jp.ne.yonem.restful.domain.model.Post;
-import jp.ne.yonem.restful.infrastructure.GetPostByIdApiCallService;
+import jp.ne.yonem.restful.infrastructure.ApiCallProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,7 +18,7 @@ import reactor.core.publisher.Mono;
 public class ApiCallController {
 
   private final GetPostsApiCallService getPostsApiCallService;
-  private final GetPostByIdApiCallService getPostByIdApiCallService;
+  private final ApiCallProvider apiCallProvider;
 
   /**
    * 全ての投稿を非同期で取得するAPIエンドポイント。 GET /api/external/posts
@@ -39,8 +39,8 @@ public class ApiCallController {
    */
   @GetMapping("/posts/{id}")
   public Mono<ResponseEntity<Post>> getPostById(@PathVariable Integer id) {
-    return getPostByIdApiCallService
-        .execute(id)
+    return apiCallProvider
+        .findPostBy(id)
         .map(ResponseEntity::ok) // 投稿が見つかった場合
         .defaultIfEmpty(ResponseEntity.notFound().build());
     // 投稿が見つからなかった場合（Monoが空の場合）

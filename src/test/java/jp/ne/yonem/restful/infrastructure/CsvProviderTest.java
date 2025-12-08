@@ -15,8 +15,8 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 
 @ExtendWith(MockitoExtension.class)
-class ReceiveCsvServiceTest {
-  @InjectMocks private ReceiveCsvService sut;
+class CsvProviderTest {
+  @InjectMocks private CsvProvider sut;
 
   private MultipartFile mockCsvFile;
   private MultipartFile emptyFile;
@@ -48,14 +48,14 @@ class ReceiveCsvServiceTest {
   @Test
   @DisplayName("正常系: CSVファイルの読み込み")
   void test01() {
-    var act = sut.execute(1, mockCsvFile);
+    var act = sut.receive(1, mockCsvFile);
     assertEquals(2, act.getBody().size());
     System.out.println(act.getHeader());
     System.out.println("================");
     act.getBody().forEach(System.out::println);
 
     // 空ファイル
-    act = sut.execute(1, emptyFile);
+    act = sut.receive(1, emptyFile);
     assertEquals(0, act.getBody().size());
   }
 
@@ -69,6 +69,15 @@ class ReceiveCsvServiceTest {
             throw new IOException("Simulating an I/O error");
           }
         };
-    assertThrows(RuntimeException.class, () -> sut.execute(1, throwingFile));
+    assertThrows(RuntimeException.class, () -> sut.receive(1, throwingFile));
+  }
+
+  @Test
+  @DisplayName("ユーザーリストがCSV形式で正しく出力されること")
+  void test03() throws IOException {
+    var exp = String.join(System.lineSeparator(), "name,age", "Alice,25", "Bob,30", "Charlie,35");
+    var act = sut.download();
+    var file = new String(act.getFile());
+    assertEquals(exp, file);
   }
 }
