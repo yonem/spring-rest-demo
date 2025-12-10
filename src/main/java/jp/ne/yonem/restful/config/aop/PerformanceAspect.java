@@ -13,7 +13,9 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class PerformanceAspect {
 
-  @Around("execution(* jp.ne.yonem.restful.application.*.*(..))")
+  @Around(
+      "execution(* jp.ne.yonem.restful..*Service.*(..)) || "
+          + "execution(* jp.ne.yonem.restful..*Provider.*(..))")
   public Object measureTime(ProceedingJoinPoint joinPoint) throws Throwable {
     var startTime = System.currentTimeMillis();
     var result = joinPoint.proceed(); // 実際のメソッドが実行される
@@ -25,7 +27,7 @@ public class PerformanceAspect {
     return result;
   }
 
-  @Before("execution(* jp.ne.yonem.restful.presentation.controller.*.*(..))")
+  @Before("execution(* jp.ne.yonem.restful..*Controller.*(..))")
   public void logRequestStart(JoinPoint joinPoint) {
     var className = joinPoint.getTarget().getClass().getSimpleName();
     var methodName = joinPoint.getSignature().getName();
