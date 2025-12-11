@@ -7,6 +7,7 @@ import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import jp.ne.yonem.restful.presentation.dto.DownloadFileResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -51,11 +52,7 @@ public class ZipCreationProvider {
     var zipFileName = "%s%s%s".formatted(ZIP_BASE_NAME, timestamp, ZIP_EXTENSION);
     var targetFiles = filePaths.stream().map(File::new).collect(Collectors.toList());
     var tempZipPath = Path.of(System.getProperty("java.io.tmpdir"), zipFileName);
-    var hasPassword = password != null && !password.isEmpty();
-    var zipFile =
-        hasPassword
-            ? new ZipFile(tempZipPath.toFile(), password.toCharArray())
-            : new ZipFile(tempZipPath.toFile());
+    var hasPassword = Objects.nonNull(password) && !password.isEmpty();
 
     var parameters = new ZipParameters();
     parameters.setRootFolderNameInZip(
@@ -64,8 +61,14 @@ public class ZipCreationProvider {
     parameters.setEncryptionMethod(EncryptionMethod.AES);
     parameters.setAesKeyStrength(AesKeyStrength.KEY_STRENGTH_256);
 
-    try (zipFile) {
-      zipFile.addFiles(targetFiles, parameters);
+    try {
+      try (var zipFile =
+          hasPassword
+              ? new ZipFile(tempZipPath.toFile(), password.toCharArray())
+              : new ZipFile(tempZipPath.toFile())) {
+        zipFile.addFiles(targetFiles, parameters);
+      } // <--- ここで zipFile の .close() が呼ばれ、OSにハンドル解放を促す
+
       var zipBytes = Files.readAllBytes(tempZipPath);
       var headers = new HttpHeaders();
       headers.setContentDispositionFormData("attachment", zipFileName); // ファイル名を指定
@@ -77,6 +80,12 @@ public class ZipCreationProvider {
       throw new IOException("Failed to create password-protected ZIP file.", e);
 
     } finally {
+
+      try {
+        Thread.sleep(50); // 50ミリ秒待機し、OSにファイルハンドルの解放を促す
+      } catch (InterruptedException ignored) {
+        Thread.currentThread().interrupt();
+      }
       Files.deleteIfExists(tempZipPath);
       log.info("Temp file deleted. : {}", tempZipPath);
     }
