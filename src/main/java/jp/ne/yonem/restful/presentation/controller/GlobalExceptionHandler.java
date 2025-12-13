@@ -27,7 +27,8 @@ public class GlobalExceptionHandler {
 
   @ExceptionHandler(BusinessRuleViolationException.class)
   @ResponseStatus(HttpStatus.BAD_REQUEST) // 例: HTTP 400 を返す
-  public MessageResponse handleBusinessViolation(BusinessRuleViolationException ex) {
+  public ResponseEntity<Map<String, MessageResponse>> handleBusinessViolation(
+      BusinessRuleViolationException ex) {
     log.error(
         "Business rule violation. Key: {}, Args: {}",
         ex.getMessageKey(),
@@ -35,7 +36,9 @@ public class GlobalExceptionHandler {
         ex);
 
     // 2. 外部応答の生成
-    return messageUtil.getResponse(ex.getMessageKey(), ex.getMessageArgs(), MDC.get("trace_id"));
+    var message =
+        messageUtil.getResponse(ex.getMessageKey(), ex.getMessageArgs(), MDC.get("trace_id"));
+    return new ResponseEntity<>(Map.of("error", message), HttpStatus.BAD_REQUEST);
   }
 
   @ExceptionHandler(MethodArgumentNotValidException.class)
