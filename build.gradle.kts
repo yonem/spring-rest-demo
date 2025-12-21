@@ -7,6 +7,15 @@ buildscript {
     }
 }
 
+val installGitHooks = tasks.register<Copy>("installGitHooks") {
+    from(layout.projectDirectory.dir("githooks/pre-commit"))
+    into(layout.projectDirectory.dir(".git/hooks"))
+}
+tasks.withType<Test>().configureEach { dependsOn(installGitHooks) }
+tasks.withType<JavaCompile>().configureEach { dependsOn(installGitHooks) }
+tasks.withType<ProcessResources>().configureEach { dependsOn(installGitHooks) }
+tasks.named("prepareKotlinBuildScriptModel") { dependsOn(installGitHooks) }
+
 plugins {
     java
     id("org.springframework.boot") version "3.4.7"
@@ -39,7 +48,7 @@ dependencies {
     // Security & Logic
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.springframework.boot:spring-boot-starter-validation")
-    implementation("org.springframework.boot:spring-boot-starter-aop") // pom指定の3.5.6は親と乖離があるため基本はBoot管理に任せるのが安全です
+    implementation("org.springframework.boot:spring-boot-starter-aop")
 
     // JWT
     implementation("io.jsonwebtoken:jjwt-api:0.12.6")
@@ -54,7 +63,7 @@ dependencies {
     implementation("net.logstash.logback:logstash-logback-encoder:9.0")
     implementation("net.lingala.zip4j:zip4j:2.11.5")
     implementation("org.apache.commons:commons-csv:1.9.0")
-    implementation("com.opencsv:opencsv:5.9")
+    implementation("com.opencsv:opencsv:5.12.0")
     implementation("com.google.zxing:javase:3.5.3")
     implementation("org.jboss.aerogear:aerogear-otp-java:1.0.0")
     implementation("commons-codec:commons-codec:1.16.1")
