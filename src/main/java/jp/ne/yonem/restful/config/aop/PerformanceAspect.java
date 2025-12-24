@@ -26,24 +26,32 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 @Slf4j
 public class PerformanceAspect {
 
-  /** Service/Provider/Controllerの実行時間計測、およびMDCクリア */
+  /** Service/Providerの実行時間計測 */
   @Around(
       "execution(* jp.ne.yonem.restful..*Service.*(..)) || "
-          + "execution(* jp.ne.yonem.restful..*Provider.*(..)) || "
-          + "execution(* jp.ne.yonem.restful..*Controller.*(..))")
-  public Object measureTimeAndManageContext(ProceedingJoinPoint joinPoint) throws Throwable {
+          + "execution(* jp.ne.yonem.restful..*Provider.*(..))")
+  public Object measureTime(ProceedingJoinPoint joinPoint) throws Throwable {
     var startTime = System.currentTimeMillis();
+
     try {
       return joinPoint.proceed();
+
     } finally {
-      var endTime = System.currentTimeMillis();
-      var executionTime = endTime - startTime;
+      var executionTime = System.currentTimeMillis() - startTime;
       var className = joinPoint.getTarget().getClass().getSimpleName();
       var methodName = joinPoint.getSignature().getName();
-
       log.info("⏳ {}.{} の実行時間: {} ms", className, methodName, executionTime);
+    }
+  }
 
-      // 最後にMDCをクリアしてスレッド汚染を防止
+  /** Controllerの実行管理とMDCクリア */
+  @Around("execution(* jp.ne.yonem.restful..*Controller.*(..))")
+  public Object manageControllerContext(ProceedingJoinPoint joinPoint) throws Throwable {
+
+    try {
+      return joinPoint.proceed();
+
+    } finally {
       MDC.clear();
     }
   }
@@ -51,23 +59,18 @@ public class PerformanceAspect {
   /** ユーザー情報・アクセス元・引数を統合して出力 */
   @Before("execution(* jp.ne.yonem.restful..*Controller.*(..))")
   public void logRequestStart(JoinPoint joinPoint) {
-    // 1. HTTPリクエスト情報の取得とMDC設定
     var attributes = RequestContextHolder.getRequestAttributes();
+
     if (Objects.nonNull(attributes) && attributes instanceof ServletRequestAttributes) {
       var request = ((ServletRequestAttributes) attributes).getRequest();
       setupMdc(request);
     }
-
-    // 2. ユーザー情報の取得 (OperationLogAspectから移行)
     var authentication = SecurityContextHolder.getContext().getAuthentication();
     var username = Optional.ofNullable(authentication).map(Principal::getName).orElse(ANONYMOUS);
-
-    // 3. メソッド情報の取得
     var className = joinPoint.getTarget().getClass().getSimpleName();
     var methodName = joinPoint.getSignature().getName();
     var args = Arrays.toString(joinPoint.getArgs());
 
-    // 4. 統合ログ
     log.info("▶️ Request Start: [USER:{}] {}.{} | Args: {}", username, className, methodName, args);
   }
 
@@ -85,6 +88,7 @@ public class PerformanceAspect {
 
   private String getClientIp(HttpServletRequest request) {
     var xff = request.getHeader("X-Forwarded-For");
+
     if (Objects.nonNull(xff) && !xff.isBlank()) {
       return xff.split(",")[0];
     }
