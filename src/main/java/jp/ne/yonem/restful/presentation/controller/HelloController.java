@@ -15,7 +15,6 @@ public class HelloController {
   @GetMapping("/hello")
   public String getHelloMessage(@RequestParam(value = "name", defaultValue = "Guest") String name) {
     // リクエストパラメータ 'name' を受け取り、文字列を返す
-    log.info("getHelloMessage");
     return "Hello, " + name + "!";
   }
 
