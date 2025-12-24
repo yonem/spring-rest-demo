@@ -1,9 +1,10 @@
 package jp.ne.yonem.restful.infrastructure.idp;
 
 import lombok.Data;
+import lombok.ToString;
 
 @Data
 public class LoginRequest {
   private String username;
-  private String password;
+  @ToString.Exclude private String password;
 }
