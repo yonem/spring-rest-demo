@@ -9,7 +9,7 @@ import org.springframework.validation.FieldError;
 
 @Component
 @RequiredArgsConstructor
-public class StandardMessageResolver implements MessageResolverStrategy {
+public final class StandardMessageResolver implements MessageResolverStrategy {
   private final MessageUtil messageUtil;
   private final List<String> LENGTH_CHECK_IDS = List.of("E002");
 
