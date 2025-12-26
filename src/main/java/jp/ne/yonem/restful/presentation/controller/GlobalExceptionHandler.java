@@ -3,7 +3,6 @@ package jp.ne.yonem.restful.presentation.controller;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import jp.ne.yonem.restful.infrastructure.exception.BusinessRuleViolationException;
 import jp.ne.yonem.restful.infrastructure.validation.MessageResolverStrategy;
 import jp.ne.yonem.restful.presentation.dto.MessageResponse;
@@ -45,27 +44,30 @@ public class GlobalExceptionHandler {
   public ResponseEntity<Map<String, List<MessageResponse>>> handleValidationExceptions(
       MethodArgumentNotValidException ex) {
     var result = ex.getBindingResult();
-
     var errors =
         result.getAllErrors().stream()
             .map(
                 error -> {
                   var messageId =
-                      Objects.nonNull(error.getDefaultMessage())
-                          ? error.getDefaultMessage()
-                          : "E999";
-                  var message = "不明なメッセージ";
-                  var fieldError = (error instanceof FieldError) ? (FieldError) error : null;
+                      (error.getDefaultMessage() != null) ? error.getDefaultMessage() : "E999";
                   var target = result.getTarget();
+
                   var resolver =
                       messageResolvers.stream()
                           .filter(s -> s.supports(messageId))
                           .findFirst()
                           .orElse(null);
 
-                  if (Objects.nonNull(resolver)) {
-                    message = resolver.resolveMessage(messageId, target, fieldError);
-                  }
+                  var message =
+                      switch (error) {
+                        case FieldError fieldError when resolver != null ->
+                            resolver.resolveMessage(messageId, target, fieldError);
+                        default ->
+                            (resolver != null)
+                                ? resolver.resolveMessage(messageId, target, null)
+                                : "不明なメッセージ";
+                      };
+
                   return new MessageResponse(messageId, message);
                 })
             .toList();

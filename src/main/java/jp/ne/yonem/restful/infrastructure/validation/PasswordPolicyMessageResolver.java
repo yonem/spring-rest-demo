@@ -11,7 +11,7 @@ import org.springframework.validation.FieldError;
 
 @Component
 @RequiredArgsConstructor
-public class PasswordPolicyMessageResolver implements MessageResolverStrategy {
+public final class PasswordPolicyMessageResolver implements MessageResolverStrategy {
   private final MessageUtil messageUtil;
   private final PasswordPolicyMapper mapper;
   private final List<String> PWD_POLICY_IDS = List.of("E001");
@@ -23,7 +23,11 @@ public class PasswordPolicyMessageResolver implements MessageResolverStrategy {
 
   @Override
   public String resolveMessage(String messageId, Object target, FieldError fieldError) {
-    var policyId = getPolicyIdFromTarget(target);
+    var policyId =
+        switch (target) {
+          case PasswordForm f -> ((PasswordForm) target).getPolicyId();
+          default -> null;
+        };
     var policy = Objects.nonNull(policyId) ? mapper.findById(policyId) : null;
 
     if (Objects.nonNull(policy)) {
@@ -33,12 +37,5 @@ public class PasswordPolicyMessageResolver implements MessageResolverStrategy {
     }
 
     return messageUtil.getMessage(messageId);
-  }
-
-  private Integer getPolicyIdFromTarget(Object target) {
-    if (target instanceof PasswordForm) {
-      return ((PasswordForm) target).getPolicyId();
-    }
-    return null;
   }
 }
