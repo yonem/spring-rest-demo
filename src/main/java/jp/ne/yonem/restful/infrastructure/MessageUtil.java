@@ -1,4 +1,4 @@
-package jp.ne.yonem.restful.presentation.controller;
+package jp.ne.yonem.restful.infrastructure;
 
 import jp.ne.yonem.restful.presentation.dto.MessageResponse;
 import lombok.RequiredArgsConstructor;

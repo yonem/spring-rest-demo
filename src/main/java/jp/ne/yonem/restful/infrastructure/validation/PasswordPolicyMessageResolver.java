@@ -2,8 +2,8 @@ package jp.ne.yonem.restful.infrastructure.validation;
 
 import java.util.List;
 import java.util.Objects;
+import jp.ne.yonem.restful.infrastructure.MessageUtil;
 import jp.ne.yonem.restful.infrastructure.persistence.mapper.PasswordPolicyMapper;
-import jp.ne.yonem.restful.presentation.controller.MessageUtil;
 import jp.ne.yonem.restful.presentation.dto.PasswordForm;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;

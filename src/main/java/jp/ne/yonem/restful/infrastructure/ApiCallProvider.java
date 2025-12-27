@@ -2,11 +2,11 @@ package jp.ne.yonem.restful.infrastructure;
 
 import jp.ne.yonem.restful.domain.model.Post;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
-@Service
+@Component
 @RequiredArgsConstructor
 public class ApiCallProvider {
 
