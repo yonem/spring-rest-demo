@@ -79,6 +79,7 @@ dependencies {
     testImplementation("org.springframework.security:spring-security-test")
     testImplementation("org.mybatis.spring.boot:mybatis-spring-boot-starter-test:3.0.4")
     testRuntimeOnly("com.h2database:h2")
+    testImplementation("com.tngtech.archunit:archunit-junit5:1.3.0")
 }
 
 flyway {
