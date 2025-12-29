@@ -1,37 +1,29 @@
 package jp.ne.yonem.restful.infrastructure.persistence.record;
 
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 public record PasswordPolicy(int id, int min, int max, String kinds, int comb) {
 
-  /** 指定されたパスワードがポリシーに適合するか判定する */
   public boolean validate(String password) {
     if (Objects.isNull(password)) return false;
 
     // 長さチェック
-    if (password.length() < min || max < password.length()) {
-      return false;
-    }
+    var length = password.length();
+    if (length < min || max < length) return false;
 
-    // 使用されている文字種（kinds）のカウント
-    var count = 0;
-    if (kinds.contains("l") && password.matches(".*[a-z].*")) count++;
-    if (kinds.contains("u") && password.matches(".*[A-Z].*")) count++;
-    if (kinds.contains("d") && password.matches(".*[0-9].*")) count++;
-    if (kinds.contains("s") && password.matches(".*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>/?].*"))
-      count++;
+    // 有効な文字種のリストを取得
+    var activeKinds = PasswordCharKind.from(kinds);
 
-    // 組み合わせ種類のチェック
-    if (count < comb) return false;
+    // 1. 組み合わせ種類のチェック (Stream APIで宣言的に記述)
+    var combinationCount = activeKinds.stream().filter(kind -> kind.matches(password)).count();
+    if (combinationCount < comb) return false;
 
-    // 許可されていない文字が含まれていないかチェック
-    var allowedChars = "";
-    if (kinds.contains("l")) allowedChars += "a-z";
-    if (kinds.contains("u")) allowedChars += "A-Z";
-    if (kinds.contains("d")) allowedChars += "0-9";
-    if (kinds.contains("s")) allowedChars += "!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>\\/?";
+    // 2. 許可されていない文字のチェック
+    var allowedPattern =
+        activeKinds.stream().map(PasswordCharKind::getAllowedPattern).collect(Collectors.joining());
 
-    var disallowedCharPattern = "[^" + allowedChars + "]+";
-    return !password.matches(".*" + disallowedCharPattern + ".*");
+    var disallowedCharRegex = ".*[^" + allowedPattern + "].*";
+    return !password.matches(disallowedCharRegex);
   }
 }
