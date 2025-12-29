@@ -31,11 +31,9 @@ public final class PasswordPolicyMessageResolver implements MessageResolverStrat
     var policy = Objects.nonNull(policyId) ? mapper.findById(policyId) : null;
 
     if (Objects.nonNull(policy)) {
-      var args =
-          new Object[] {policy.getMin(), policy.getMax(), policy.getKinds(), policy.getComb()};
+      var args = new Object[] {policy.min(), policy.max(), policy.kinds(), policy.comb()};
       return messageUtil.getMessage(messageId, args);
     }
-
     return messageUtil.getMessage(messageId);
   }
 }

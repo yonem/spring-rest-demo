@@ -19,7 +19,7 @@ public class PasswordPolicyValidator
   }
 
   @Override
-  public boolean isValid(PasswordForm form, ConstraintValidatorContext context) { // 引数名を変更
+  public boolean isValid(PasswordForm form, ConstraintValidatorContext context) {
     var policy = mapper.findById(form.getPolicyId());
 
     if (Objects.isNull(policy)) {
@@ -27,40 +27,10 @@ public class PasswordPolicyValidator
       context.buildConstraintViolationWithTemplate("E999").addConstraintViolation();
       return false;
     }
-    var password = form.getPassword();
-    context.disableDefaultConstraintViolation();
 
-    if (password.length() < policy.getMin() || password.length() > policy.getMax()) {
-      context
-          .buildConstraintViolationWithTemplate(this.messageId)
-          .addPropertyNode("password")
-          .addConstraintViolation();
-      return false;
-    }
-    var kinds = policy.getKinds();
-    var combinationCount = 0;
-    if (kinds.contains("l") && password.matches(".*[a-z].*")) combinationCount++;
-    if (kinds.contains("u") && password.matches(".*[A-Z].*")) combinationCount++;
-    if (kinds.contains("s") && password.matches(".*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>/?].*"))
-      combinationCount++;
-    if (kinds.contains("d") && password.matches(".*[0-9].*")) combinationCount++;
-
-    var allowedChars = "";
-    if (kinds.contains("l")) allowedChars += "a-z";
-    if (kinds.contains("u")) allowedChars += "A-Z";
-    if (kinds.contains("s")) allowedChars += "!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>\\/?";
-    if (kinds.contains("d")) allowedChars += "0-9";
-
-    var disallowedCharPattern = "[^" + allowedChars + "]+";
-    if (password.matches(".*%s.*".formatted(disallowedCharPattern))) {
-      context
-          .buildConstraintViolationWithTemplate(this.messageId)
-          .addPropertyNode("password")
-          .addConstraintViolation();
-      return false;
-    }
-
-    if (combinationCount < policy.getComb()) {
+    // 判定ロジックをモデルに委譲
+    if (!policy.validate(form.getPassword())) {
+      context.disableDefaultConstraintViolation();
       context
           .buildConstraintViolationWithTemplate(this.messageId)
           .addPropertyNode("password")

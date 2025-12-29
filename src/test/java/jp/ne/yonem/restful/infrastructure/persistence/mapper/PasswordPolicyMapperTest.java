@@ -20,10 +20,10 @@ class PasswordPolicyMapperTest {
   void test1() {
     var act = sut.findById(1);
     assertNotNull(act);
-    assertEquals(1, act.getId());
-    assertEquals(2, act.getComb());
-    assertEquals(4, act.getMin());
-    assertEquals(8, act.getMax());
-    assertEquals("lusd", act.getKinds());
+    assertEquals(1, act.id());
+    assertEquals(2, act.comb());
+    assertEquals(4, act.min());
+    assertEquals(8, act.max());
+    assertEquals("lusd", act.kinds());
   }
 }
