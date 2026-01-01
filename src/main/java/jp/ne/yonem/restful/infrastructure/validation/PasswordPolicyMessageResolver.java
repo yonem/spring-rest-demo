@@ -1,7 +1,7 @@
 package jp.ne.yonem.restful.infrastructure.validation;
 
 import java.util.List;
-import java.util.Objects;
+import java.util.Optional;
 import jp.ne.yonem.restful.infrastructure.MessageUtil;
 import jp.ne.yonem.restful.infrastructure.persistence.mapper.PasswordPolicyMapper;
 import jp.ne.yonem.restful.presentation.dto.PasswordForm;
@@ -23,17 +23,24 @@ public final class PasswordPolicyMessageResolver implements MessageResolverStrat
 
   @Override
   public String resolveMessage(String messageId, Object target, FieldError fieldError) {
-    var policyId =
-        switch (target) {
-          case PasswordForm f -> ((PasswordForm) target).getPolicyId();
-          default -> null;
-        };
-    var policy = Objects.nonNull(policyId) ? mapper.findById(policyId) : null;
+    return Optional.ofNullable(target)
 
-    if (Objects.nonNull(policy)) {
-      var args = new Object[] {policy.min(), policy.max(), policy.kinds(), policy.comb()};
-      return messageUtil.getMessage(messageId, args);
-    }
-    return messageUtil.getMessage(messageId);
+        // 1. targetがPasswordFormであれば、policyIdを取得する
+        .filter(PasswordForm.class::isInstance)
+        .map(PasswordForm.class::cast)
+        .map(PasswordForm::getPolicyId)
+
+        // 2. policyIdが存在すれば、mapperで検索する
+        .flatMap(mapper::findById)
+
+        // 3. policyが存在すれば、引数付きでメッセージを解決する
+        .map(
+            policy -> {
+              var args = new Object[] {policy.min(), policy.max(), policy.kinds(), policy.comb()};
+              return messageUtil.getMessage(messageId, args);
+            })
+
+        // 4. 上記のいずれかが空（null）なら、引数なしのデフォルトメッセージを返す
+        .orElseGet(() -> messageUtil.getMessage(messageId));
   }
 }

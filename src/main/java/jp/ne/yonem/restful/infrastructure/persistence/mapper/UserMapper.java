@@ -1,6 +1,7 @@
 package jp.ne.yonem.restful.infrastructure.persistence.mapper;
 
 import java.util.List;
+import java.util.Optional;
 import jp.ne.yonem.restful.infrastructure.persistence.record.User;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -22,7 +23,7 @@ public interface UserMapper {
    * @param id ユーザーID
    * @return 該当するUserオブジェクト、見つからない場合はnull
    */
-  User findById(@Param("id") Integer id);
+  Optional<User> findById(@Param("id") Integer id);
 
   /**
    * メールアドレスに基づいてユーザーを検索します。
@@ -30,14 +31,14 @@ public interface UserMapper {
    * @param email メールアドレス
    * @return 該当するUserオブジェクト、見つからない場合はnull
    */
-  User findByEmail(@Param("email") String email);
+  Optional<User> findByEmail(@Param("email") String email);
 
   /**
    * すべてのユーザーを取得します。
    *
    * @return Userオブジェクトのリスト
    */
-  List<User> findAllUsers();
+  Optional<List<User>> findAllUsers();
 
   /**
    * ユーザー情報を更新します。

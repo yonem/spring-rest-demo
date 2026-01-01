@@ -18,7 +18,7 @@ class PasswordPolicyMapperTest {
   @Test
   @DisplayName("Collection ResultMapの取得")
   void test1() {
-    var act = sut.findById(1);
+    var act = sut.findById(1).orElseThrow();
     assertNotNull(act);
     assertEquals(1, act.id());
     assertEquals(2, act.comb());

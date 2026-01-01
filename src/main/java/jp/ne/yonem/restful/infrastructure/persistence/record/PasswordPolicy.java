@@ -5,6 +5,20 @@ import java.util.stream.Collectors;
 
 public record PasswordPolicy(int id, int min, int max, String kinds, int comb) {
 
+  /**
+   * 指定されたパスワードがこのポリシーの制約を満たしているか検証します。
+   *
+   * <p>以下のチェックを順番に行います：
+   *
+   * <ul>
+   *   <li>長さチェック: {@code min}文字以上、{@code max}文字以下であること
+   *   <li>組み合わせチェック: 有効な文字種（{@code kinds}）のうち、最低{@code comb}種類以上が含まれていること
+   *   <li>許可文字チェック: 有効な文字種として定義されていない文字が含まれていないこと
+   * </ul>
+   *
+   * @param password 検証対象のパスワード。{@code null} の場合は {@code false} を返します
+   * @return ポリシーに適合する場合は {@code true}、適合しない場合は {@code false}
+   */
   public boolean validate(String password) {
     if (Objects.isNull(password)) return false;
 

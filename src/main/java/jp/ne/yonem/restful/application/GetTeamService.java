@@ -1,6 +1,5 @@
 package jp.ne.yonem.restful.application;
 
-import java.util.Objects;
 import jp.ne.yonem.restful.infrastructure.persistence.mapper.TeamMapper;
 import jp.ne.yonem.restful.infrastructure.persistence.record.Team;
 import lombok.RequiredArgsConstructor;
@@ -17,10 +16,10 @@ public class GetTeamService {
   public Team execute(Integer id) throws NotFoundException {
     var team = mapper.findById(id);
 
-    if (Objects.isNull(team)) {
+    if (team.isEmpty()) {
       log.error("Team is not found.");
       throw new NotFoundException("Team is not found.");
     }
-    return team;
+    return team.orElseThrow();
   }
 }

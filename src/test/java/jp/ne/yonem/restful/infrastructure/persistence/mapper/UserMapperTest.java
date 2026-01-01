@@ -20,7 +20,7 @@ public class UserMapperTest {
     var user = new User(null, "testuser_insert", "insert@example.com", "password123", 1, null);
     var inserted = sut.insert(user);
 
-    var act = sut.findById(user.getId());
+    var act = sut.findById(user.getId()).orElseThrow();
     assertEquals(1, inserted);
     assertNotNull(act);
     assertEquals(user.getId(), act.getId());
@@ -37,7 +37,7 @@ public class UserMapperTest {
     var inserted = sut.insert(user);
 
     // 存在するユーザー名で検索
-    var act = sut.findByEmail("insert@example.com");
+    var act = sut.findByEmail("insert@example.com").orElseThrow();
     assertEquals(1, inserted);
     assertNotNull(act);
     assertEquals(user.getId(), act.getId());
@@ -48,7 +48,7 @@ public class UserMapperTest {
 
     // 存在しないユーザー名で検索
     var notFoundUser = sut.findByEmail("nonexistent_user@example.com");
-    assertNull(notFoundUser);
+    assertTrue(notFoundUser.isEmpty());
   }
 
   //
