@@ -2,7 +2,7 @@ package jp.ne.yonem.restful.infrastructure.validation;
 
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
-import java.util.Objects;
+import java.util.Optional;
 import jp.ne.yonem.restful.infrastructure.persistence.mapper.PasswordPolicyMapper;
 import jp.ne.yonem.restful.presentation.dto.PasswordForm;
 import lombok.RequiredArgsConstructor;
@@ -20,23 +20,33 @@ public class PasswordPolicyValidator
 
   @Override
   public boolean isValid(PasswordForm form, ConstraintValidatorContext context) {
-    var policy = mapper.findById(form.getPolicyId());
+    return mapper
+        .findById(form.getPolicyId())
 
-    if (Objects.isNull(policy)) {
-      context.disableDefaultConstraintViolation();
-      context.buildConstraintViolationWithTemplate("E999").addConstraintViolation();
-      return false;
-    }
+        // 1. policyが存在しない場合の処理
+        .map(Optional::of)
+        .orElseGet(
+            () -> {
+              context.disableDefaultConstraintViolation();
+              context.buildConstraintViolationWithTemplate("E999").addConstraintViolation();
+              return Optional.empty();
+            })
 
-    // 判定ロジックをモデルに委譲
-    if (!policy.validate(form.getPassword())) {
-      context.disableDefaultConstraintViolation();
-      context
-          .buildConstraintViolationWithTemplate(this.messageId)
-          .addPropertyNode("password")
-          .addConstraintViolation();
-      return false;
-    }
-    return true;
+        // 2. policyは存在するが、バリデーションに失敗した場合の処理
+        .filter(
+            policy -> {
+              if (policy.validate(form.getPassword())) {
+                return true;
+              }
+              context.disableDefaultConstraintViolation();
+              context
+                  .buildConstraintViolationWithTemplate(this.messageId)
+                  .addPropertyNode("password")
+                  .addConstraintViolation();
+              return false;
+            })
+
+        // 3. 全てのチェックを通過すればisPresentがtrueになる
+        .isPresent();
   }
 }

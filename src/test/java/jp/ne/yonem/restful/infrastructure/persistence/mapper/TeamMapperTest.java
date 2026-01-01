@@ -28,7 +28,7 @@ class TeamMapperTest {
   @Test
   @DisplayName("Teamの取得")
   void test2() {
-    var result = sut.findById(1);
+    var result = sut.findById(1).orElseThrow();
     assertThat(result).isNotNull();
     assertEquals("Team A", result.getName());
   }

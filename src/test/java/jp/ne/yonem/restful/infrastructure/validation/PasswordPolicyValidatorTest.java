@@ -8,6 +8,7 @@ import static org.mockito.Mockito.when;
 
 import jakarta.validation.ConstraintValidatorContext;
 import jakarta.validation.ConstraintValidatorContext.ConstraintViolationBuilder.NodeBuilderCustomizableContext;
+import java.util.Optional;
 import jp.ne.yonem.restful.infrastructure.persistence.mapper.PasswordPolicyMapper;
 import jp.ne.yonem.restful.infrastructure.persistence.record.PasswordPolicy;
 import jp.ne.yonem.restful.presentation.dto.PasswordForm;
@@ -28,11 +29,11 @@ public class PasswordPolicyValidatorTest {
   @Mock private NodeBuilderCustomizableContext propertyNodeBuilder;
   @InjectMocks private PasswordPolicyValidator validator;
 
-  private PasswordPolicy validPolicy;
+  private Optional<PasswordPolicy> validPolicy;
 
   @BeforeEach
   void setUp() {
-    validPolicy = new PasswordPolicy(1, 8, 16, "lusd", 3);
+    validPolicy = Optional.of(new PasswordPolicy(1, 8, 16, "lusd", 3));
     var mockAnnotation = Mockito.mock(PasswordPolicyCheck.class);
     when(mockAnnotation.message()).thenReturn("E001");
     validator.initialize(mockAnnotation);
@@ -54,7 +55,7 @@ public class PasswordPolicyValidatorTest {
   @Test
   @DisplayName("ポリシーIDが存在しない")
   void test02() {
-    when(passwordPolicyMapper.findById(99)).thenReturn(null);
+    when(passwordPolicyMapper.findById(99)).thenReturn(Optional.empty());
 
     var form = new PasswordForm(99, "AnyPassword123!");
     assertFalse(validator.isValid(form, context));

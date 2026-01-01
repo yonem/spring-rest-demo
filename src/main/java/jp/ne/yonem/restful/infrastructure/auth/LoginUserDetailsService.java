@@ -16,7 +16,7 @@ public class LoginUserDetailsService implements UserDetailsService {
 
   @Override
   public UserDetails loadUserByUsername(String loginName) throws UsernameNotFoundException {
-    var user = mapper.findByEmail(loginName);
+    var user = mapper.findByEmail(loginName).orElseThrow();
     return new LoginUserDetail(
         user.getId(),
         user.getUserName(),
