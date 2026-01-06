@@ -36,7 +36,7 @@ class PointCalculatorTest {
 
     var result = calculator.calculate(1000, rules);
 
-    assertThat(result).isEqualTo(120);
+    assertThat(result.finalPoints()).isEqualTo(120);
   }
 
   @Nested
@@ -47,7 +47,7 @@ class PointCalculatorTest {
     @DisplayName("ルールが空の場合は0ポイントを返すこと")
     void calculate_EmptyRules_ShouldReturnZero() {
       var result = calculator.calculate(5000, List.of());
-      assertThat(result).isZero();
+      assertThat(result.finalPoints()).isZero();
     }
 
     @Test
@@ -60,7 +60,35 @@ class PointCalculatorTest {
           List.of(new BasePoint(1), new RankMultiplier(2.0), new RankMultiplier(1.5));
 
       var result = calculator.calculate(1000, rules);
-      assertThat(result).isEqualTo(30);
+      assertThat(result.finalPoints()).isEqualTo(30);
     }
+  }
+
+  @Test
+  @DisplayName("計算の明細（Audit Trail）が正しく記録されていること")
+  void calculate_ShouldReturnDetails() {
+    List<RewardRule> rules =
+        List.of(
+            new BasePoint(1), // 1000円で 10pt
+            new PointCalculator.CampaignPoint(50), // +50pt
+            new RankMultiplier(2.0) // 2倍
+            );
+
+    var result = calculator.calculate(1000, rules);
+
+    // 最終値の検証
+    assertThat(result.finalPoints()).isEqualTo(120);
+
+    // 明細の検証（順序とステップごとの値）
+    var details = result.details();
+    assertThat(details).hasSize(3);
+    assertThat(details.get(0).ruleName()).isEqualTo("BasePoint");
+    assertThat(details.get(0).pointsAtStep()).isEqualTo(10.0);
+
+    assertThat(details.get(1).ruleName()).isEqualTo("CampaignPoint");
+    assertThat(details.get(1).pointsAtStep()).isEqualTo(60.0);
+
+    assertThat(details.get(2).ruleName()).isEqualTo("RankMultiplier");
+    assertThat(details.get(2).pointsAtStep()).isEqualTo(120.0);
   }
 }

@@ -41,26 +41,51 @@ public class PointCalculator {
     }
   }
 
-  /**
-   * 指定された金額とルールのリストに基づいて最終的な獲得ポイントを計算します。
-   *
-   * @param amount 購入金額
-   * @param rules 適用するルールのリスト（順不同）
-   * @return 計算済みの最終ポイント（小数点以下切り捨て）
-   * @throws NullPointerException rules または要素が null の場合
-   */
-  public int calculate(int amount, List<RewardRule> rules) {
+  /** 計算の各ステップにおける詳細を記録する Record */
+  public record CalculationStep(String ruleName, double pointsAtStep) {}
 
-    // 1. 優先順位（priority）の低い順にソート
+  /** 最終的な計算結果と、その根拠となる明細を保持する Record */
+  public record PointCalculationResult(int finalPoints, List<CalculationStep> details) {}
+
+  /**
+   * 指定された金額に対し、複数の報酬ルールを適用して最終ポイントと計算明細を算出します。
+   *
+   * <p>このメソッドは以下の手順で計算を実行します：
+   *
+   * <ol>
+   *   <li>入力された全ルールを {@link RewardPriority} に定義された優先順位に従ってソートします。
+   *   <li>ソートされた各ルールを順次適用し、適用後の累計ポイントを {@link CalculationStep} として記録します。
+   *   <li>すべてのルールの適用が完了した後、最終的な整数値ポイントと全計算ステップを含む結果オブジェクトを返します。
+   * </ol>
+   *
+   * <p><b>計算順序の重要性:</b> 優先順位（Priority）が低いルールほど先に適用されるため、 「基本付与（加算）」の後に「ランク倍率（乗算）」を適用するといったビジネスルールが
+   * プログラム構造として保証されます。
+   *
+   * @param amount 購入金額。基本ポイントの算出基礎となります。
+   * @param rules 適用候補となるルールのリスト。空のリストを指定した場合は 0 ポイントが返されます。
+   * @return 計算結果と監査用明細を含む {@link PointCalculationResult} オブジェクト。
+   * @throws NullPointerException rules またはその要素に null が含まれる場合。
+   * @see RewardRule
+   * @see RewardPriority
+   * @see PointCalculationResult
+   */
+  public PointCalculationResult calculate(int amount, List<RewardRule> rules) {
+
+    // 1. 優先順位でソート
     var sortedRules =
         rules.stream().sorted(Comparator.comparingInt(r -> r.priority().getValue())).toList();
 
-    // 2. 順次適用（reduce で状態を回す）
-    var finalPoints =
-        sortedRules.stream()
-            .reduce((double) 0, (current, rule) -> applyRule(amount, current, rule), Double::sum);
+    // 2. 計算と履歴の蓄積
+    var details = new ArrayList<CalculationStep>();
+    var currentPoints = 0.0;
 
-    return finalPoints.intValue();
+    for (var rule : sortedRules) {
+      currentPoints = applyRule(amount, currentPoints, rule);
+
+      // ルールの名前と、適用後のポイントを記録
+      details.add(new CalculationStep(rule.getClass().getSimpleName(), currentPoints));
+    }
+    return new PointCalculationResult((int) currentPoints, List.copyOf(details));
   }
 
   private double applyRule(int amount, double currentPoints, RewardRule rule) {
