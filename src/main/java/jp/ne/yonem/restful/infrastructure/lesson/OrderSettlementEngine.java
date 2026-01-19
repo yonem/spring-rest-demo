@@ -1,7 +1,7 @@
 package jp.ne.yonem.restful.infrastructure.lesson;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 注文リストに対してバリデーション、割引適用、集計を順次実行するエンジンです。 *
@@ -61,5 +61,78 @@ public class OrderSettlementEngine {
     // 4. 計算過程を List<SettlementDetail> に add していく
 
     return null; // ダミー
+  }
+
+  /**
+   * 注文リストと割引ルールのリストを受け取り、精算結果を返します。 * @param items 注文アイテムのリスト（nullや不正なデータが含まれる可能性がある）
+   *
+   * @param rules 適用する割引ルールのリスト
+   * @return 精算結果（明細付き）
+   */
+  public OrderSettlementEngine.SettlementResult modern(
+      List<OrderSettlementEngine.OrderItem> items, List<OrderSettlementEngine.DiscountRule> rules) {
+
+    // 1. クレンジング & カテゴリ別の集計（単価 * 数量 を忘れずに！）
+    var categoryTotals =
+        Optional.ofNullable(items).stream()
+            .flatMap(Collection::stream)
+            .map(
+                i ->
+                    Optional.ofNullable(i)
+                        .filter(it -> Objects.nonNull(it.category()))
+                        .filter(it -> 0 < it.unitPrice() && 0 < it.quantity()))
+            .flatMap(Optional::stream)
+            .collect(
+                Collectors.groupingBy(
+                    OrderSettlementEngine.OrderItem::category,
+                    Collectors.summingInt(i -> i.unitPrice() * i.quantity())));
+
+    var initialTotal = categoryTotals.values().stream().mapToInt(Integer::intValue).sum();
+    ArrayList<SettlementDetail> details = new ArrayList<>();
+
+    // 初期状態を記録
+    details.add(new OrderSettlementEngine.SettlementDetail("初期合計", initialTotal, initialTotal));
+
+    // 2. カテゴリ別割引の適用 (優先順位1)
+    var afterCategoryDiscount =
+        categoryTotals.entrySet().stream()
+            .mapToInt(
+                entry -> {
+                  int subtotal = entry.getValue();
+                  // そのカテゴリに該当する割引を探す
+                  double rate =
+                      rules.stream()
+                          .filter(
+                              r ->
+                                  r instanceof OrderSettlementEngine.CategoryRateDiscount d
+                                      && d.category().equals(entry.getKey()))
+                          .map(r -> ((OrderSettlementEngine.CategoryRateDiscount) r).rate())
+                          .findFirst()
+                          .orElse(0.0);
+                  return subtotal - (int) (subtotal * rate);
+                })
+            .sum();
+
+    if (afterCategoryDiscount != initialTotal) {
+      details.add(
+          new OrderSettlementEngine.SettlementDetail(
+              "カテゴリ割引適用後", initialTotal, afterCategoryDiscount));
+    }
+
+    // 3. 全体定額割引の適用 (優先順位2)
+    int finalAmount = afterCategoryDiscount;
+    int fixedDiscount =
+        rules.stream()
+            .filter(r -> r instanceof OrderSettlementEngine.FixedAmountDiscount)
+            .mapToInt(r -> ((OrderSettlementEngine.FixedAmountDiscount) r).amount())
+            .sum();
+
+    if (0 < fixedDiscount) {
+      int before = finalAmount;
+      finalAmount = Math.max(0, finalAmount - fixedDiscount);
+      details.add(new OrderSettlementEngine.SettlementDetail("定額割引適用後", before, finalAmount));
+    }
+
+    return new OrderSettlementEngine.SettlementResult(finalAmount, List.copyOf(details));
   }
 }
