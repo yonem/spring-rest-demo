@@ -24,12 +24,20 @@ public class GlobalExceptionHandler {
   private final MessageUtil messageUtil;
   private final List<MessageResolverStrategy> messageResolvers;
 
+  /** 全ての例外をログに出力し、原因を特定する */
+  @ExceptionHandler(Exception.class)
+  public ResponseEntity<Map<String, String>> handleAll(Exception ex) {
+    log.error("🚨 INTERNAL_SERVER_ERROR: ", ex);
+    return new ResponseEntity<>(
+        Map.of("message", "🚨 予期せぬエラーが発生しました"), HttpStatus.INTERNAL_SERVER_ERROR);
+  }
+
   @ExceptionHandler(BusinessRuleViolationException.class)
   @ResponseStatus(HttpStatus.BAD_REQUEST) // 例: HTTP 400 を返す
   public ResponseEntity<Map<String, MessageResponse>> handleBusinessViolation(
       BusinessRuleViolationException ex) {
     log.error(
-        "Business rule violation. Key: {}, Args: {}",
+        "🚫 Business rule violation. Key: {}, Args: {}",
         ex.getMessageKey(),
         Arrays.toString(ex.getMessageArgs()),
         ex);
