@@ -52,9 +52,20 @@ services:
       POSTGRES_DB: your_dev_db         # 任意のデータベース名に変更
       POSTGRES_USER: your_user         # 任意のユーザー名に変更
       POSTGRES_PASSWORD: your_password # 任意のパスワードに変更
+      TZ: Asia/Tokyo
+    command: postgres -c 'timezone=Asia/Tokyo'
     ports:
       - "5432:5432"
     volumes:
       - db_data:/var/lib/postgresql/data
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    entrypoint: [ "/bin/sh", "-c", "ollama serve & sleep 5 && ollama pull llama3 && wait" ]
 volumes:
   db_data:
+  ollama_data:
