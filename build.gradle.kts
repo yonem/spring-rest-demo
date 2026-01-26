@@ -50,6 +50,12 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springframework.boot:spring-boot-starter-aop")
 
+    // LLM
+    implementation("dev.langchain4j:langchain4j:1.10.0")
+    implementation("dev.langchain4j:langchain4j-ollama:1.10.0")
+    implementation("dev.langchain4j:langchain4j-embeddings-all-minilm-l6-v2-q:1.10.0-beta18")
+    implementation("dev.langchain4j:langchain4j-document-parser-apache-pdfbox:1.10.0-beta18")
+
     // JWT
     implementation("io.jsonwebtoken:jjwt-api:0.12.6")
     runtimeOnly("io.jsonwebtoken:jjwt-impl:0.12.6")
