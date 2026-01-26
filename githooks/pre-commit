@@ -20,7 +20,7 @@ echo "Staged Java files detected. Running checks..."
 
 # 3. 実行
 # テストをスキップしたい場合は、末尾に -x test を追記してください
-sh gradlew spotlessApply test
+sh gradlew spotlessCheck test
 
 if [ $? -ne 0 ]; then
     echo "----------------------------------------------------------"
