@@ -51,8 +51,9 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-aop")
 
     // LLM
-    implementation("dev.langchain4j:langchain4j:1.10.0")
+    implementation("dev.langchain4j:langchain4j-google-ai-gemini:1.10.0")
     implementation("dev.langchain4j:langchain4j-ollama:1.10.0")
+    implementation("dev.langchain4j:langchain4j:1.10.0")
     implementation("dev.langchain4j:langchain4j-embeddings-all-minilm-l6-v2-q:1.10.0-beta18")
     implementation("dev.langchain4j:langchain4j-document-parser-apache-pdfbox:1.10.0-beta18")
 
