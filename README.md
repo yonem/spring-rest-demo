@@ -214,4 +214,42 @@ Springアプリケーションを起動し`https://localhost:8443/` にアクセ
    server.ssl.key-alias=your_alias # エイリアスを更新
    server.ssl.key-password=your_keystore_password # パスワードを更新
    ```
-  
+
+---
+
+## Gemini API (Google AI Studio) の設定
+
+Gemini API を使用して LLM 機能を利用するための設定
+
+### API キーの取得
+
+1. **Google AI Studio にアクセス** [Google AI Studio](https://aistudio.google.com/) にアクセスし、Google アカウントでログイン
+2. **API キーの生成** 左サイドメニューの `Get API key` をクリック
+   `Create API key in new project` ボタンをクリックして API キーを発行
+3. **API キーのコピー** 発行された文字列をコピーして安全な場所に保管する
+   ※ API キーは公開リポジトリ（GitHub等）にコミットしないよう注意
+
+### Spring Boot の `application.properties` を設定
+
+`src/main/resources/application.properties` に取得したキーを追加（キーを直接記述せず環境変数から読み込む設定を推奨）
+
+```properties
+# Gemini API 設定
+# 直接記述する場合: langchain4j.google-ai-gemini.api-key=AIza...
+# 環境変数から読み込む場合 (推奨)
+langchain4j.google-ai-gemini.api-key=${GEMINI_API_KEY}
+langchain4j.google-ai-gemini.model-name=gemini-3-flash-preview
+
+```
+
+### 依存関係の追加 (Gradle)
+
+`build.gradle.kts` に以下の依存関係を追加
+
+```kts
+implementation("dev.langchain4j:langchain4j-google-ai-gemini:1.10.0")
+```
+
+### 参考
+
+[Gemini API ドキュメント (日本語)](https://ai.google.dev/gemini-api/docs?hl=ja)
