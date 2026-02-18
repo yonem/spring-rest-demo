@@ -2,6 +2,7 @@ package jp.ne.yonem.restful.infrastructure.lesson;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import lombok.Data;
 
 /** 副作用のあるループの「クリーン化」 */
@@ -27,5 +28,39 @@ public class GetDiscountedProducts {
       }
     }
     return results;
+  }
+
+  public record ProductRec(Integer price) {}
+
+  public List<ProductRec> modern(List<ProductRec> productRecs) {
+    return Optional.ofNullable(productRecs).orElse(List.of()).stream()
+        .map(
+            productRec -> {
+              if (10_000 < productRec.price())
+                return new ProductRec((int) (productRec.price() * 0.8));
+              if (5_000 < productRec.price())
+                return new ProductRec((int) (productRec.price() * 0.9));
+              return productRec;
+            })
+        .toList();
+  }
+
+  public List<ProductRec> modern2(List<ProductRec> productRecs) {
+    return Optional.ofNullable(productRecs).orElse(List.of()).stream()
+        .map(this::applyDiscount) // 何をしているか（割引適用）が一目でわかる
+        .toList();
+  }
+
+  private ProductRec applyDiscount(ProductRec productRec) {
+    var currentPrice = productRec.price();
+
+    // 価格帯に応じた「新しい価格」を算出する責務
+    var discountedPrice =
+        switch (currentPrice) {
+          case Integer p when 10_000 < p -> (int) (p * 0.8);
+          case Integer p when 5_000 < p -> (int) (p * 0.9);
+          default -> currentPrice;
+        };
+    return new ProductRec(discountedPrice);
   }
 }
