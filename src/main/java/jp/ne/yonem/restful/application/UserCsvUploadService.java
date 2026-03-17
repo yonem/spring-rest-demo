@@ -6,15 +6,19 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 @Service
+@Slf4j
 public class UserCsvUploadService {
 
   public List<User> execute(MultipartFile file) throws IOException {
+    log.info(
+        "📦 File Upload Check: {} (Size: {} bytes)", file.getOriginalFilename(), file.getSize());
     var format =
         CSVFormat.DEFAULT
             .builder()
@@ -29,6 +33,7 @@ public class UserCsvUploadService {
       var users = new ArrayList<User>();
 
       for (var record : parser) {
+        if (10 < users.size()) break;
         var name = record.get("氏名");
         var age = Integer.parseInt(record.get("年齢"));
         users.add(new User(name, age));
