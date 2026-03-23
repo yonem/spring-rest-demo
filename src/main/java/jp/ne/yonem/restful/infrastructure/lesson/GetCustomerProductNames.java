@@ -1,6 +1,7 @@
 package jp.ne.yonem.restful.infrastructure.lesson;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /** 複雑な集計（Grouping & Mapping） */
 public class GetCustomerProductNames {
@@ -23,5 +24,16 @@ public class GetCustomerProductNames {
       }
     }
     return result;
+  }
+
+  public Map<String, List<String>> modern(List<Order> orders) {
+    return Optional.ofNullable(orders).orElse(List.of()).stream()
+        .collect(
+            Collectors.groupingBy(
+                Order::customerName, // 1. 顧客名でグループ化
+                Collectors.flatMapping(
+                    o -> o.items().stream(), // 2. 注文内のアイテムを平坦化
+                    Collectors.mapping(Item::name, Collectors.toList()) // 3. アイテム名を取り出してリスト化
+                    )));
   }
 }
