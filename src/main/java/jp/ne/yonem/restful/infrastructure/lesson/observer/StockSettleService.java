@@ -1,4 +1,4 @@
-package jp.ne.yonem.restful.infrastructure.lesson;
+package jp.ne.yonem.restful.infrastructure.lesson.observer;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;

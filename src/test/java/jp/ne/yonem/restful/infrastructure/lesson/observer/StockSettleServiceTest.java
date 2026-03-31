@@ -1,10 +1,10 @@
-package jp.ne.yonem.restful.infrastructure.lesson;
+package jp.ne.yonem.restful.infrastructure.lesson.observer;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-import jp.ne.yonem.restful.infrastructure.lesson.StockSettleService.StockEvent;
-import jp.ne.yonem.restful.infrastructure.lesson.StockSettleService.StockObserver;
+import jp.ne.yonem.restful.infrastructure.lesson.observer.StockSettleService.StockEvent;
+import jp.ne.yonem.restful.infrastructure.lesson.observer.StockSettleService.StockObserver;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
