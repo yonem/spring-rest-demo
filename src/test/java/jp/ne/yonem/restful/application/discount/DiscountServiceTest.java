@@ -1,67 +1,59 @@
 package jp.ne.yonem.restful.application.discount;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import java.util.stream.Stream;
-import jp.ne.yonem.restful.application.discount.DiscountService.AmountDiscount;
-import jp.ne.yonem.restful.application.discount.DiscountService.DiscountRule;
-import jp.ne.yonem.restful.application.discount.DiscountService.PercentageDiscount;
-import jp.ne.yonem.restful.application.discount.DiscountService.SeasonalDiscount;
+import jp.ne.yonem.restful.infrastructure.lesson.strategy.DiscountService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.InjectMocks;
+import org.mockito.MockitoAnnotations;
 
-class DiscountServiceTest {
-  private DiscountService service;
+class DiscountSettleServiceTest {
+
+  @InjectMocks private DiscountService sut;
 
   @BeforeEach
   void setUp() {
-    service = new DiscountService();
+    MockitoAnnotations.openMocks(this);
   }
 
   @Nested
-  @DisplayName("割引ルールの計算テスト")
-  class DiscountCalculationTests {
+  @DisplayName("正常系: 割引計算の検証")
+  class SuccessTests {
 
-    @ParameterizedTest(name = "{0} のとき、元の価格 {1}円 が {2}円 になること")
-    @MethodSource("discountProvider")
-    void testApplyDiscount(DiscountRule rule, int originalPrice, int expectedPrice) {
-      var result = service.execute(originalPrice, rule);
-      assertThat(result).isEqualTo(expectedPrice);
-    }
-
-    // 複雑なオブジェクトをパラメータとして渡すための MethodSource
-    static Stream<Arguments> discountProvider() {
-      return Stream.of(
-          // AmountDiscount: 定額引き
-          Arguments.of(new AmountDiscount(1000), 5000, 4000),
-          Arguments.of(new AmountDiscount(1000), 500, 0), // 0円以下にならないこと
-
-          // PercentageDiscount: 20%引き
-          Arguments.of(new PercentageDiscount(0.2), 10000, 8000),
-          Arguments.of(new PercentageDiscount(1.0), 10000, 0),
-
-          // SeasonalDiscount: 夏はさらにボーナス引き
-          Arguments.of(
-              new SeasonalDiscount("SUMMER", 1000), 5000, 3500), // 5000 - 1000 - 500(bonus)
-          Arguments.of(new SeasonalDiscount("WINTER", 1000), 5000, 4000) // 5000 - 1000
-          );
-    }
-  }
-
-  @Nested
-  @DisplayName("異常系のテスト")
-  class NegativeTests {
     @Test
-    @DisplayName("nullのルールが渡された場合に適切にハンドリングされること")
-    void shouldThrowExceptionWhenRuleIsNull() {
-      assertThatThrownBy(() -> service.execute(1000, null))
-          .isInstanceOf(NullPointerException.class);
-      // switch式でnullを扱う場合は、case null を書かない限りNPEになります
+    @DisplayName("test01: GOLDランクの場合、20%引きされること")
+    void test01() {
+      var result = sut.execute("GOLD", 10000);
+      assertThat(result).isEqualTo(8000);
+    }
+
+    @Test
+    @DisplayName("test02: SILVERランクの場合、10%引きされること")
+    void test02() {
+      var result = sut.execute("SILVER", 10000);
+      assertThat(result).isEqualTo(9000);
+    }
+
+    @Test
+    @DisplayName("test03: 該当ランクがない場合、定価であること")
+    void test03() {
+      var result = sut.execute("BRONZE", 10000);
+      assertThat(result).isEqualTo(10000);
+    }
+  }
+
+  @Nested
+  @DisplayName("異常系: パラメータ不正の検証")
+  class ExceptionTests {
+
+    @Test
+    @DisplayName("test01: ランクがnullの場合、定価であること")
+    void test01() {
+      var result = sut.execute(null, 10000);
+      assertThat(result).isEqualTo(10000);
     }
   }
 }
