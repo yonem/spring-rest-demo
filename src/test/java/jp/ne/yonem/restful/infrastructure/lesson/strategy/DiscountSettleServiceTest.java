@@ -1,8 +1,7 @@
-package jp.ne.yonem.restful.application.discount;
+package jp.ne.yonem.restful.infrastructure.lesson.strategy;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import jp.ne.yonem.restful.infrastructure.lesson.strategy.DiscountService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -12,7 +11,7 @@ import org.mockito.MockitoAnnotations;
 
 class DiscountSettleServiceTest {
 
-  @InjectMocks private DiscountService sut;
+  @InjectMocks private DiscountSettleService sut;
 
   @BeforeEach
   void setUp() {
@@ -26,21 +25,14 @@ class DiscountSettleServiceTest {
     @Test
     @DisplayName("test01: GOLDランクの場合、20%引きされること")
     void test01() {
-      var result = sut.execute("GOLD", 10000);
+      var result = sut.execute(MemberRank.GOLD, 10000);
       assertThat(result).isEqualTo(8000);
     }
 
     @Test
-    @DisplayName("test02: SILVERランクの場合、10%引きされること")
+    @DisplayName("test02: STANDARDランクの場合、金額が変わらないこと")
     void test02() {
-      var result = sut.execute("SILVER", 10000);
-      assertThat(result).isEqualTo(9000);
-    }
-
-    @Test
-    @DisplayName("test03: 該当ランクがない場合、定価であること")
-    void test03() {
-      var result = sut.execute("BRONZE", 10000);
+      var result = sut.execute(MemberRank.STANDARD, 10000);
       assertThat(result).isEqualTo(10000);
     }
   }
@@ -50,7 +42,7 @@ class DiscountSettleServiceTest {
   class ExceptionTests {
 
     @Test
-    @DisplayName("test01: ランクがnullの場合、定価であること")
+    @DisplayName("test01: rankがnullの場合、STANDARDとして扱われ金額が変わらないこと")
     void test01() {
       var result = sut.execute(null, 10000);
       assertThat(result).isEqualTo(10000);
