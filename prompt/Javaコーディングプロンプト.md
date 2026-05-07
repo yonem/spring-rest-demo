@@ -12,6 +12,7 @@ Javaの実装は以下のルールを厳守し実装してください
 - テストコードの実装について
     - ServiceクラスのテストコードはC1網羅を厳守する
     - Serviceクラスのテストコードは`@Mock`, `@InjectMocks`を使用する
+    - モックは`@ExtendWith(MockitoExtension.class)`で初期化する
     - テスト対象 (`@InjectMocks`) は`sut`で統一する
     - whenメソッドでモック設定をする
     - verifyでメソッドの検証をする (呼び出されない検証も含める)
