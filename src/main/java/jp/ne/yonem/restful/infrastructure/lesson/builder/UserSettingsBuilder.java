@@ -5,33 +5,32 @@ import java.util.Objects;
 /** UserSettingsを段階的に構築するBuilderクラスです。 */
 public class UserSettingsBuilder {
   private String userId;
-  private String theme = "LIGHT"; // デフォルト値
+  private String theme = "LIGHT";
   private boolean notificationsEnabled = true;
+  private int retryCount = 3;
 
   public UserSettingsBuilder userId(String userId) {
-    this.userId = userId;
+    this.userId = Objects.requireNonNull(userId, "userId must not be null");
     return this;
   }
 
   public UserSettingsBuilder theme(String theme) {
-    this.theme = theme;
+    this.theme = Objects.requireNonNull(theme, "theme must not be null");
     return this;
   }
 
-  public UserSettingsBuilder disableNotifications() {
-    this.notificationsEnabled = false;
+  public UserSettingsBuilder notificationsEnabled(boolean enabled) {
+    this.notificationsEnabled = enabled;
     return this;
   }
 
   /**
-   * 設定情報を確定させ、UserSettingsインスタンスを生成します。
+   * インスタンスを生成します。
    *
-   * @return 構築されたUserSettings
+   * @return UserSettings
    */
   public UserSettings build() {
-    // 必須チェックなどはここで行う
-    var id = Objects.requireNonNull(userId, "userIdは必須です");
-    var retryCount = 3;
-    return new UserSettings(id, theme, notificationsEnabled, retryCount);
+    Objects.requireNonNull(userId, "userId is required for building");
+    return new UserSettings(userId, theme, notificationsEnabled, retryCount);
   }
 }
