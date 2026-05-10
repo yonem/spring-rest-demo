@@ -12,28 +12,35 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 class UserSettingsServiceTest {
+
   @InjectMocks private UserSettingsService sut;
 
   @Nested
   class SuccessTests {
 
     @Test
-    @DisplayName("正常系: 一般ユーザーの場合、デフォルト設定で構築されること")
+    @DisplayName("正常系: 管理者IDの場合、ダークテーマかつ通知オフで構築されること")
     void test01() {
-      var result = sut.execute("USR001");
-
-      assertThat(result.userId()).isEqualTo("USR001");
-      assertThat(result.theme()).isEqualTo("LIGHT");
-      assertThat(result.notificationsEnabled()).isTrue();
-    }
-
-    @Test
-    @DisplayName("正常系: 管理者ユーザーの場合、ダークテーマかつ通知オフで構築されること")
-    void test02() {
-      var result = sut.execute("ADM999");
+      var result = sut.execute("ADM_01");
 
       assertThat(result.theme()).isEqualTo("DARK");
       assertThat(result.notificationsEnabled()).isFalse();
+    }
+
+    @Test
+    @DisplayName("正常系: ゲストIDの場合、クラシックテーマで構築されること")
+    void test02() {
+      var result = sut.execute("GUEST_99");
+
+      assertThat(result.theme()).isEqualTo("CLASSIC");
+    }
+
+    @Test
+    @DisplayName("正常系: 一般ユーザーの場合、デフォルト設定が維持されること")
+    void test03() {
+      var result = sut.execute("USER_123");
+
+      assertThat(result.theme()).isEqualTo("LIGHT");
     }
   }
 
@@ -41,11 +48,11 @@ class UserSettingsServiceTest {
   class ExceptionTests {
 
     @Test
-    @DisplayName("異常系: ユーザーIDがnullの場合、NullPointerExceptionが発生すること")
+    @DisplayName("異常系: ユーザーIDがnullの場合、例外が発生すること")
     void test01() {
       assertThatThrownBy(() -> sut.execute(null))
           .isInstanceOf(NullPointerException.class)
-          .hasMessageContaining("userIdは必須です");
+          .hasMessageContaining("Input userId must not be null");
     }
   }
 }
