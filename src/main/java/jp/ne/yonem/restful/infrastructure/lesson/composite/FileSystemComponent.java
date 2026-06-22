@@ -1,7 +1,7 @@
 package jp.ne.yonem.restful.infrastructure.lesson.composite;
 
 /** ファイルシステム要素の共通インターフェースです。 */
-public interface FileSystemComponent {
+public sealed interface FileSystemComponent permits CompositeFile, CompositeFolder {
   String getName();
 
   int getSize();
