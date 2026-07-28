@@ -3,10 +3,7 @@ package jp.ne.yonem.restful.infrastructure.lesson.interpreter;
 import java.util.Objects;
 
 /** 非終端表現: 加算演算を表す表現クラスです。 */
-public class AddExpression implements Expression {
-
-  private final Expression left;
-  private final Expression right;
+public record AddExpression(Expression left, Expression right) implements Expression {
 
   public AddExpression(Expression left, Expression right) {
     this.left = Objects.requireNonNull(left, "left must not be null");
