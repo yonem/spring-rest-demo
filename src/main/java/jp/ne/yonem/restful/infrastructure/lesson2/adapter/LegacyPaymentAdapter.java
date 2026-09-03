@@ -3,9 +3,7 @@ package jp.ne.yonem.restful.infrastructure.lesson2.adapter;
 import java.util.Objects;
 
 /** レガシー決済システムを新決済インターフェースへ適合させるアダプターです。 */
-public class LegacyPaymentAdapter implements PaymentProcessor {
-
-  private final LegacyPaymentGateway legacyGateway;
+public record LegacyPaymentAdapter(LegacyPaymentGateway legacyGateway) implements PaymentProcessor {
 
   public LegacyPaymentAdapter(LegacyPaymentGateway legacyGateway) {
     this.legacyGateway = Objects.requireNonNull(legacyGateway, "legacyGateway must not be null");
