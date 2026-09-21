@@ -1,5 +1,19 @@
 # Spring REST Demo
 
+## 必須の環境変数
+
+認証鍵・暗号化キー・データベース認証情報は、リポジトリへ保存せず実行環境で設定してください。
+
+```text
+DB_USERNAME
+DB_PASSWORD
+ENCRYPTION_PASSWORD
+JWT_PUBLIC_KEY
+JWT_PRIVATE_KEY
+```
+
+`JWT_PUBLIC_KEY` と `JWT_PRIVATE_KEY` はRSA鍵のBase64値を指定します。公開済みの鍵は再利用せず、環境ごとに再生成してください。
+
 > **学習・技術検証用リポジトリ**
 >
 > 本リポジトリは、Java/Springを中心に、Web API、認証、非同期処理、外部サービス連携、テスト、設計パターン、AI駆動開発などを検証するための学習用リポジトリです。
