@@ -26,6 +26,7 @@
         <flyway.version>11.10.0</flyway.version>
         <spotless.version>2.43.0</spotless.version>
         <google.java.format.version>1.27.0</google.java.format.version>
+        <jacoco.version>0.8.15</jacoco.version>
         <flyway.url>jdbc:postgresql://localhost:5432/your_dev_db</flyway.url>
         <flyway.user>your_user</flyway.user>
         <flyway.password>your_password</flyway.password>
@@ -241,6 +242,33 @@
                         <endWithNewline/>
                     </java>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>${jacoco.version}</version>
+                <executions>
+                    <execution>
+                        <id>prepare-agent</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>report</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                        <configuration>
+                            <formats>
+                                <format>HTML</format>
+                                <format>XML</format>
+                                <format>CSV</format>
+                            </formats>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <groupId>org.flywaydb</groupId>
