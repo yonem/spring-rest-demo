@@ -86,6 +86,18 @@ mvn test
 
 GitHub Actionsでは、`develop`へのpushとpull requestで、整形チェック、ビルド、テスト、秘密情報スキャンを実行します。
 
+## コードカバレッジ
+
+`mvn verify`を実行すると、JaCoCoのカバレッジレポートを生成します。
+
+```text
+target/site/jacoco/index.html
+target/site/jacoco/jacoco.xml
+target/site/jacoco/jacoco.csv
+```
+
+GitHub Actionsでは、レポートを`jacoco-report`アーティファクトとして14日間保存します。初回導入時点ではカバレッジの下限を設けず、計測結果の確認を優先します。
+
 ## APIドキュメント
 
 アプリケーション起動後、SpringdocによるSwagger UIを利用できます。

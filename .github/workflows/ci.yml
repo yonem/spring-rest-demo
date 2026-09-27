@@ -26,6 +26,13 @@ jobs:
           cache: maven
       - name: Verify formatting, build, and tests
         run: mvn --batch-mode --no-transfer-progress spotless:check verify
+      - name: Upload JaCoCo report
+        uses: actions/upload-artifact@v4
+        with:
+          name: jacoco-report
+          path: target/site/jacoco/
+          if-no-files-found: error
+          retention-days: 14
 
   secret-scan:
     name: Secret scan
