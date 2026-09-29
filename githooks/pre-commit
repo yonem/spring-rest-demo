@@ -19,8 +19,9 @@ fi
 echo "Staged Java files detected. Running checks..."
 
 # 3. 実行
+# Maven Wrapperを利用するため、ローカル環境へのMavenインストールは不要です。
 # テストをスキップしたい場合は、末尾に -DskipTests を追記してください
-mvn spotless:check test
+sh ./mvnw --batch-mode --no-transfer-progress spotless:check test
 
 if [ $? -ne 0 ]; then
     echo "----------------------------------------------------------"
