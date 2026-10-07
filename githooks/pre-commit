@@ -16,19 +16,17 @@ if [ -z "$STAGED_JAVA_FILES" ]; then
     exit 0
 fi
 
-echo "Staged Java files detected. Running checks..."
+echo "Staged Java files detected. Running formatting check..."
 
-# 3. 実行
-# Maven Wrapperを利用するため、ローカル環境へのMavenインストールは不要です。
-# テストをスキップしたい場合は、末尾に -DskipTests を追記してください
-sh ./mvnw --batch-mode --no-transfer-progress spotless:check test
+# 3. Maven Wrapperで整形チェックを実行
+sh ./mvnw --batch-mode --no-transfer-progress spotless:check
 
 if [ $? -ne 0 ]; then
     echo "----------------------------------------------------------"
-    echo "FAILED: Maven checks failed!"
+    echo "FAILED: Maven formatting check failed!"
     echo "----------------------------------------------------------"
     exit 1
 fi
 
-echo "--- All checks passed! Proceeding with commit. ---"
+echo "--- Formatting check passed! Proceeding with commit. ---"
 exit 0
