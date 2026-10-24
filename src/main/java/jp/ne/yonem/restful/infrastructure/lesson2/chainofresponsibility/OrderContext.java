@@ -1,9 +1,8 @@
 package jp.ne.yonem.restful.infrastructure.lesson2.chainofresponsibility;
 
+import java.util.Objects;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.util.Objects;
 
 /** 処理対象となる注文リクエスト情報です。 */
 @Getter
